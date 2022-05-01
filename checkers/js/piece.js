@@ -1,5 +1,4 @@
-let ifCanEatRight = false;
-let ifCanEatLeft = false;
+
 class Piece {
 
   constructor(row, col, player) {
@@ -49,102 +48,65 @@ class Piece {
   //returns array of White piece possible moves
   getBluePieceRelativeMoves() {
     let result = [];
-    let a = 0;
+    let ifCanEatRight = false;
+    let ifCanEatLeft = false;
+    let CanContinueLeft =false;
+    let CanContinueRight=false;
+    result =result.concat(this.ifCanMove(result,BLUE_PLAYER,1,-1));
+    ifCanEatLeft =this.ifCanContinueLeft(BLUE_PLAYER ,1,-1);
+
+    result =result.concat(this.ifCanMove(result,BLUE_PLAYER,1,1));
+    ifCanEatRight =this.ifCanContinueRight(BLUE_PLAYER ,1,1);
+   
+    CanContinueLeft= this.ifCanEat(result, ifCanEatLeft,2,-2);
+    CanContinueRight=this.ifCanEat(result, ifCanEatRight ,2,2);
     
-
-    result.push([1, 1]); //a 0
-    let currentPiece = boardData.getPiece(
-      this.row + result[0][0],
-      this.col + result[0][1]
-    );
-    if (currentPiece !== undefined && currentPiece.player !== BLUE_PLAYER) {  
-        result.pop();
-      ifCanEatRight = true;
-    eatenPieceRight=currentPiece; 
-}
-    else if(currentPiece !== undefined){
-        result.pop();
-
+    
+    if (CanContinueLeft) {
+    
     }
-
-    result.push([1, -1]);
-    a = result.length - 1;
-    if (result !== undefined) {
-      currentPiece = boardData.getPiece(
-        this.row + result[a][0],
-        this.col + result[a][1]
-        
-      );
-    }
-
-    if (currentPiece !== undefined && currentPiece.player !== BLUE_PLAYER) {
-        result.pop();
-      ifCanEatLeft = true;
-      eatenPieceLeft =currentPiece;
-
-    }
-    else if(currentPiece !== undefined){
-        result.pop();
-
-    }
-    this.ifCanEat(result, ifCanEatLeft,2,-2);
-    this.ifCanEat(result, ifCanEatRight ,2,2);
+    if (CanContinueRight) {
+     }
     ifCanEatRight = false;
     ifCanEatLeft=false;
-
+     
     return result;
   }
 
   //returns array of brown piece possible moves
   getBrownPieceRelativeMoves() {
     let result = [];
-    let a = 0;
     let ifCanEatRight = false;
     let ifCanEatLeft = false;
+    let CanContinueLeft =false;
+    let CanContinueRight=false;
+    result =result.concat(this.ifCanMove(result,BROWN_PLAYER,-1,-1));
+    ifCanEatLeft =this.ifCanContinueLeft(BROWN_PLAYER ,-1,-1);
 
-    result.push([-1, 1]); //a 0
-    let currentPiece = boardData.getPiece(
-      this.row + result[0][0],
-      this.col + result[0][1]
-    );
-    if (currentPiece !== undefined && currentPiece.player !== BROWN_PLAYER) {
-      result.pop();
-      ifCanEatRight = true;
-      eatenPieceRight =currentPiece;
+    result =result.concat(this.ifCanMove(result,BROWN_PLAYER,-1,1));
+    ifCanEatRight =this.ifCanContinueRight(BROWN_PLAYER ,-1,1);
+   
+    CanContinueLeft= this.ifCanEat(result, ifCanEatLeft,-2,-2);
+    CanContinueRight=this.ifCanEat(result, ifCanEatRight ,-2,2);
+    
+    
+    if (CanContinueLeft) {
+    
     }
-    else if(currentPiece !== undefined){
-        result.pop();
-
-    }
-    result.push([-1, -1]);
-    a = result.length - 1;
-    if (result !== undefined) {
-      currentPiece = boardData.getPiece(
-        this.row + result[a][0],
-        this.col + result[a][1]
-      );
-    }
-
-    if (currentPiece !== undefined && currentPiece.player !== BROWN_PLAYER) {
-      result.pop();
-      ifCanEatLeft = true;
-      eatenPieceLeft =currentPiece;
-
-    }
-    else if(currentPiece !== undefined){
-        result.pop();
-
-    }
-    this.ifCanEat(result, ifCanEatLeft,-2,-2);
-    this.ifCanEat(result, ifCanEatRight ,-2,2);
+    if (CanContinueRight) {
+     }
     ifCanEatRight = false;
     ifCanEatLeft=false;
+    //eatenPieceLeft.pop();
+    //eatenPieceRight.pop();
+    
     
     return result;
   }
 
   //removes the option from possible moves if he cant eat
   ifCanEat(result, ifCanEatRight ,row ,col) {
+   let e = true;
     if (ifCanEatRight) {
       result.push([row, col]);
       let a = result.length - 1;
@@ -157,11 +119,74 @@ class Piece {
         if (currentPiece !== undefined) {
           result.pop();
           a--;
+        e = false;
         }
       }
     }
-   
+    return e;
   }
 
+ifCanMove(result,color ,row ,col){
+    let currentPiece;
+    result.push([row, col]);
+   let a = result.length - 1;
+    if (result !== undefined) {
+      currentPiece = boardData.getPiece(
+        this.row + result[a][0],
+        this.col + result[a][1]
+      );
+    }
+
+    if (currentPiece !== undefined && currentPiece.player !== color) {
+      result.pop();
+     
+    }
+    else if(currentPiece !== undefined){
+        result.pop();
+
+    }
+    return result;
+}
+
+multipleJumps(){
+
+}
+
+ ifCanContinueLeft(color,row,col){
+   
+       let currentPiece;
+       let a =false;
+      currentPiece = boardData.getPiece(
+        this.row + row,
+        this.col + col
+      );
+    
+
+    if (currentPiece !== undefined && currentPiece.player !== color) {
+     
+      eatenPieceLeft.push(currentPiece);
+      a= true;
+
+    }
+    return a;
+ }
+
+ ifCanContinueRight(color,row,col){
+   
+    let currentPiece;
+    let a =false;
+   currentPiece = boardData.getPiece(
+     this.row + row,
+     this.col + col
+   );
  
+
+ if (currentPiece !== undefined && currentPiece.player !== color) {
+  
+   eatenPieceRight.push(currentPiece) ;
+   a= true;
+
+ }
+ return a;
+}
 }

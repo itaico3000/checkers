@@ -2,8 +2,8 @@ const BOARD_SIZE = 8;
 const BLUE_PLAYER = "blue";
 const BROWN_PLAYER = "brown";
 const piece = "Piece";
-let eatenPieceLeft;
-let eatenPieceRight;
+let eatenPieceLeft = [];
+let eatenPieceRight = [];
 
 let selectedCell;
 let possibleMoves;
@@ -17,6 +17,8 @@ let lastRow;
 let lastCol;
 let turn = 0;
 let lastTurn = 0;
+let canEat = false;
+let hasEaten;
 
 //removes cells classes from the board
 function removeCellClasses() {
@@ -82,24 +84,50 @@ function onCellClick(event, row, col) {
   removeCellClasses();
 
   selectedCell = event.currentTarget;
-  if (selectedCell === lastcell) {
-    turn = lastTurn;
-  }
+
   selectedCell.classList.add("selected");
   let piece = boardData.getPiece(row, col);
   console.log(piece);
 
   addPossibleOptions(piece, turn);
 
-  let ifMove = movePiece(savedPossibleMoves, row, col, savedPiece);
+  let ifMove = false;
+  ifMove = movePiece(savedPossibleMoves, row, col, savedPiece);
+  console.log(eatenPieceLeft, "this is left");
+  console.log(eatenPieceRight, "this is right");
 
   if (ifMove) {
     turn++;
-
-    eatPiece(lastRow, lastCol, savedPiece);
+    hasEaten = eatPieces(savedPossibleMoves, row, col, savedPiece);
     checkIfWinner();
-    selectedCell = undefined;
+  
   }
+
+  if (selectedCell!==undefined) {
+    eatenPieceLeft=[];
+    eatenPieceRight=[];
+  }
+
+  // if (
+  //   piece !== undefined &&
+  //   savedPiece !== undefined &&
+  //   piece === savedPiece
+  // ) {
+  //   console.log(piece, "itai the king");
+  //   console.log(savedPiece, "shir the king");
+  // }
+  //  else if (
+  //   piece !== undefined &&
+  //   savedPiece !== undefined &&
+  //   piece !== savedPiece
+
+  // )
+  //  {
+  //   console.log(piece, " the king");
+  //   console.log(savedPiece, "saved piece != piece");
+  //   eatenPieceLeft = [];
+  //   eatenPieceRight = [];
+  // }
 
   if (piece !== undefined && possibleMoves !== undefined) {
     savedPiece = piece;
@@ -107,11 +135,13 @@ function onCellClick(event, row, col) {
     piece = undefined;
     possibleMoves = undefined;
   }
-
+  lastTurn = turn;
   lastcell = selectedCell;
   savePieces = [];
   lastCol = col;
   lastRow = row;
+
+  hasEaten = false;
 }
 
 //return true if player has won
@@ -127,32 +157,43 @@ function checkIfWinner() {
 function movePiece(savedPossibleMoves, row, col, savedPiece) {
   let a = false;
   for (const i of savedPossibleMoves) {
-    // for (const k of possibleMoves) {
     if (i !== undefined && i[0] === row && i[1] === col) {
-      //  if (lastcell!==undefined) {
-
       if (savePieces.length > 0 && savePieces[0] !== null) {
         let cell = table.rows[i[0]].cells[i[1]].append(savePieces.pop());
         cell = table.rows[i[0]].cells[i[1]];
-        a = true;
-
         boardData.changeLocation(savedPiece, row, col);
+
+        return true;
       }
     }
-    //}
   }
   return a;
 }
 
+function eatPieces(savedPossibleMoves, row, col, savedPiece) {
+  let a = false;
+  for (const i of savedPossibleMoves) {
+    if (i !== undefined && i[0] === row && i[1] === col) {
+      eatPiece(lastRow, lastCol, savedPiece);
+
+      return true;
+    }
+  }
+  return a;
+}
 //eats a piece , removes the piece from the board
 function eatPiece(lastRow, lastCol, savedPiece) {
   let direction = witchDirection(lastRow, lastCol, savedPiece);
-  if (direction === "left") {
-    removeEatenPiece(eatenPieceLeft);
+  if (direction === "left" && eatenPieceLeft !== undefined) {
+    removeEatenPiece(eatenPieceLeft.pop());
     removeCellPieces();
-  } else {
-    removeEatenPiece(eatenPieceRight);
+    eatenPieceLeft = [];
+    eatenPieceRight = [];
+  } else if (direction === "right" && eatenPieceRight !== undefined) {
+    removeEatenPiece(eatenPieceRight.pop());
     removeCellPieces();
+    eatenPieceLeft = [];
+    eatenPieceRight = [];
   }
 }
 
@@ -163,9 +204,6 @@ function removeEatenPiece(eatenPiece) {
 
 //return witch direction the pawn has moved
 function witchDirection(lastRow, lastCol, savedPiece) {
-  console.log("this is last move ", lastRow, " , ", lastCol);
-  console.log("this is last piece ", savedPiece);
-  let row = savedPiece.row;
   let col = savedPiece.col;
   if (col < lastCol) {
     return "left";
