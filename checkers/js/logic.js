@@ -1,140 +1,150 @@
 const BOARD_SIZE = 8;
 const WHITE_PLAYER = "blue";
 const BLACK_PLAYER = "brown";
-const piece ='Piece';
+const piece = "Piece";
 
 let selectedCell;
 let possibleMoves;
 let pieces = [];
 let boardData;
-let savePieces=[];
+let savePieces = [];
 let savedPiece;
 let lastcell;
-let savedPossibleMoves =[];
+let savedPossibleMoves = [];
+let lastRow;
+let lastCol;
+
 //removes cells classes from the board
 function removeCellClasses() {
   for (let i = 0; i < BOARD_SIZE; i++) {
     for (let j = 0; j < BOARD_SIZE; j++) {
       table.rows[i].cells[j].classList.remove("selectedoptions");
       table.rows[i].cells[j].classList.remove("selected");
-
-     
     }
   }
-
 }
 
+function removeCellPieces() {
+  for (let i = 0; i < BOARD_SIZE; i++) {
+    for (let j = 0; j < BOARD_SIZE; j++) {
+      if (table.rows[i].cells[j].firstChild !== null) {
+        let remove = boardData.getPiece(i, j);
+        if (remove === undefined) {
+          table.rows[i].cells[j].firstChild.remove();
+        }
+      }
+    }
+  }
+}
 
 //adds possible options
 function addPossibleOptions(piece) {
-  
   if (piece !== undefined) {
     possibleMoves = piece.getPossibleMoves();
-    
+
     for (let possibleMove of possibleMoves) {
       const cell = table.rows[possibleMove[0]].cells[possibleMove[1]];
       cell.classList.add("selectedoptions");
     }
- 
-  return possibleMoves;
+
+    return possibleMoves;
+  }
 }
-
-}
-
-
-
-
-
 
 //what happens onClick
 function onCellClick(event, row, col) {
   if (selectedCell !== undefined && lastcell !== undefined) {
     if (lastcell === selectedCell) {
-     
       savePieces.push(lastcell.firstChild);
     }
   }
   if (selectedCell !== undefined) {
     selectedCell.classList.remove("selected");
   }
-removeCellClasses();
+  removeCellClasses();
 
   selectedCell = event.currentTarget;
 
-
   selectedCell.classList.add("selected");
-   let piece = boardData.getPiece(row, col);
-   console.log(piece);
-
+  let piece = boardData.getPiece(row, col);
+  console.log(piece);
 
   addPossibleOptions(piece);
-  let ifMove = move(savedPossibleMoves,row,col,savedPiece);
+
+  let ifMove = move(savedPossibleMoves, row, col, savedPiece);
   if (ifMove) {
-    selectedCell=undefined;
+    selectedCell = undefined;
+
+    let direction = witchDirection(lastRow, lastCol, savedPiece);
+    console.log(direction);
+    if (direction === "left") {
+      removeEatenPiece(eatenPieceLeft);
+    } else {
+      removeEatenPiece(eatenPieceRight);
+    }
+    removeCellPieces();
   }
   if (piece !== undefined && possibleMoves !== undefined) {
     savedPiece = piece;
     savedPossibleMoves = possibleMoves;
   }
 
-  console.log('this is savedPieces' , savePieces);
   lastcell = selectedCell;
   savePieces = [];
+  lastCol = col;
+  lastRow = row;
 }
 
 //move's a piece and return if it happen
-function move(savedPossibleMoves,row,col,savedPiece) {
-  let turn = 0;
-  let a= false;
+function move(savedPossibleMoves, row, col, savedPiece) {
+  let a = false;
   for (const i of savedPossibleMoves) {
     // for (const k of possibleMoves) {
     if (i !== undefined && i[0] === row && i[1] === col) {
       //  if (lastcell!==undefined) {
-      
+
       if (savePieces.length > 0 && savePieces[0] !== null) {
         let cell = table.rows[i[0]].cells[i[1]].append(savePieces.pop());
         cell = table.rows[i[0]].cells[i[1]];
-       a=true;
+        a = true;
 
-       boardData.changeLocation(savedPiece,row,col)
+        boardData.changeLocation(savedPiece, row, col);
       }
     }
     //}
   }
   return a;
-
 }
 
-
-
-
-
-
-
-
-
+function removeEatenPiece(eatenPiece) {
+  boardData.removePiece(eatenPiece);
+}
+function witchDirection(lastRow, lastCol, savedPiece) {
+  console.log("this is last move ", lastRow, " , ", lastCol);
+  console.log("this is last piece ", savedPiece);
+  let row = savedPiece.row;
+  let col = savedPiece.col;
+  if (col < lastCol) {
+    return "left";
+  } else {
+    return "right";
+  }
+}
 
 //puts all pieces on the board
 function getInitialPieces() {
   let result = [];
 
- 
   for (let i = 0; i < BOARD_SIZE; i++) {
-    if (i%2==0) {
+    if (i % 2 == 0) {
       result.push(new Piece(1, i, WHITE_PLAYER));
-      result.push(new Piece(5, i,  BLACK_PLAYER));
-      result.push(new Piece(7, i,  BLACK_PLAYER));
-
-    }
-    else{
+      result.push(new Piece(5, i, BLACK_PLAYER));
+      result.push(new Piece(7, i, BLACK_PLAYER));
+    } else {
       result.push(new Piece(0, i, WHITE_PLAYER));
-      result.push(new Piece(2 , i, WHITE_PLAYER));
+      result.push(new Piece(2, i, WHITE_PLAYER));
       result.push(new Piece(6, i, BLACK_PLAYER));
-
     }
-    
-
- 
   }
 
   return result;
@@ -153,46 +163,34 @@ function addImage(cell, player, name) {
 
 //creates the board
 function createBoard() {
-    // Create empty board HTML:
-    table = document.createElement("table");
-    document.body.appendChild(table);
-    table.classList.add("animate__animated");
-    table.classList.add("animate__fadeInUpBig");
-  
-    for (let row = 0; row < BOARD_SIZE; row++) {
-      const rowElement = table.insertRow();
-      for (let col = 0; col < BOARD_SIZE; col++) {
-        const cell = rowElement.insertCell();
-        if ((row + col) % 2 === 0) {
-          cell.className = "light-cell";
-        } else {
-          cell.className = "dark-cell";
-        }
-        cell.addEventListener("click", (event) => onCellClick(event, row, col));
+  // Create empty board HTML:
+  table = document.createElement("table");
+  document.body.appendChild(table);
+  // table.classList.add("animate__animated");
+  // table.classList.add("animate__fadeInUpBig");
+
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    const rowElement = table.insertRow();
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const cell = rowElement.insertCell();
+      if ((row + col) % 2 === 0) {
+        cell.className = "light-cell";
+      } else {
+        cell.className = "dark-cell";
       }
-    }
-  
-    //Create list of pieces (32 total)
-    boardData = new BoardData(getInitialPieces());
-    pieces = getInitialPieces();
-  
-    // Add pieces images to board
-    for (let piece of boardData.pieces) {
-      const cell = table.rows[piece.row].cells[piece.col];
-      addImage(cell, piece.player, piece.type);
+      cell.addEventListener("click", (event) => onCellClick(event, row, col));
     }
   }
-  
 
+  //Create list of pieces (32 total)
+  boardData = new BoardData(getInitialPieces());
+  pieces = getInitialPieces();
 
+  // Add pieces images to board
+  for (let piece of boardData.pieces) {
+    const cell = table.rows[piece.row].cells[piece.col];
+    addImage(cell, piece.player, piece.type);
+  }
+}
 
- 
-
-
-
-
-
-
-
-  window.addEventListener("load", createBoard);
-  
+window.addEventListener("load", createBoard);

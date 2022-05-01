@@ -15,12 +15,20 @@ class BoardData {
     changeLocation(lastPiece,row,col) {
 
         let remove = this.getPiece(lastPiece.row, lastPiece.col);
+        let lastmove = [lastPiece.row,lastPiece.col]
        remove.row =row;
        remove.col=col;
         // this.pieces.push(new Piece(row, col,lastPiece.player));
     
         // this.pieces.splice(this.pieces.indexOf(remove), 1);
     
-        return remove;
+        return lastmove;
+      }
+      removePiece(eatenPiece){
+        for (const piece of this.pieces) {
+            if (eatenPiece!==undefined&&eatenPiece===piece) {
+                this.pieces.splice(this.pieces.indexOf(piece),1)
+            }
+          } 
       }
 }

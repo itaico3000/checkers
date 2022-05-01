@@ -1,4 +1,13 @@
+const eatenPieces= [];
+let eatenPieceLeft ;
+let eatenPieceRight;
+let ifCanEatRight = false;
+    let ifCanEatLeft = false;
+    let DirectionRight;
+    let DirectionLeft;
+
 class Piece {
+
   constructor(row, col, player) {
     this.row = row;
     this.col = col;
@@ -49,18 +58,22 @@ class Piece {
   getBluePieceRelativeMoves() {
     let result = [];
     let a = 0;
-    let ifCanEatRight = false;
-    let ifCanEatLeft = false;
+    
 
     result.push([1, 1]); //a 0
     let currentPiece = boardData.getPiece(
       this.row + result[0][0],
       this.col + result[0][1]
     );
-    if (currentPiece !== undefined && currentPiece.player !== WHITE_PLAYER) {
-      result.pop();
-      a--;
+    if (currentPiece !== undefined && currentPiece.player !== WHITE_PLAYER) {  
+        result.pop();
       ifCanEatRight = true;
+    eatenPieceRight=currentPiece; 
+    DirectionRight='right';    
+}
+    else if(currentPiece !== undefined){
+        result.pop();
+
     }
 
     result.push([1, -1]);
@@ -69,16 +82,24 @@ class Piece {
       currentPiece = boardData.getPiece(
         this.row + result[a][0],
         this.col + result[a][1]
+        
       );
     }
 
     if (currentPiece !== undefined && currentPiece.player !== WHITE_PLAYER) {
-      result.pop();
-      a--;
+        result.pop();
       ifCanEatLeft = true;
+      eatenPieceLeft =currentPiece;
+      DirectionLeft='left';    
+
     }
-    this.ifBlueCanEatLeft(result, ifCanEatLeft);
-    this.ifBlueCanEatRight(result, ifCanEatRight);
+    else if(currentPiece !== undefined){
+        result.pop();
+
+    }
+    this.ifCanEat(result, ifCanEatLeft,2,-2);
+    this.ifCanEat(result, ifCanEatRight ,2,2);
+    
 
     console.log("this is result ", result);
     return result;
@@ -99,11 +120,14 @@ class Piece {
     );
     if (currentPiece !== undefined && currentPiece.player !== BLACK_PLAYER) {
       result.pop();
-      a--;
       ifCanEatRight = true;
-      savePieces.push(currentPiece);
+      eatenPieceRight =currentPiece;
+      DirectionRight='right';    
     }
+    else if(currentPiece !== undefined){
+        result.pop();
 
+    }
     result.push([-1, -1]);
     a = result.length - 1;
     if (result !== undefined) {
@@ -115,21 +139,25 @@ class Piece {
 
     if (currentPiece !== undefined && currentPiece.player !== BLACK_PLAYER) {
       result.pop();
-      a--;
       ifCanEatLeft = true;
-      savePieces.push(currentPiece);
+      eatenPieceLeft =currentPiece;
+      DirectionLeft='left';    
+
     }
+    else if(currentPiece !== undefined){
+        result.pop();
 
-    this.ifBrownCanEatLeft(result, ifCanEatLeft);
-    this.ifBrownCanEatRight(result, ifCanEatRight);
+    }
+    this.ifCanEat(result, ifCanEatLeft,-2,-2);
+    this.ifCanEat(result, ifCanEatRight ,-2,2);
 
-    console.log("this is result ", result);
+    
     return result;
   }
 
-  ifBlueCanEatRight(result, ifCanEatRight) {
+  ifCanEat(result, ifCanEatRight ,row ,col) {
     if (ifCanEatRight) {
-      result.push([2, 2]);
+      result.push([row, col]);
       let a = result.length - 1;
       if (result !== undefined) {
         let currentPiece = boardData.getPiece(
@@ -145,56 +173,5 @@ class Piece {
     }
   }
 
-  ifBlueCanEatLeft(result, ifCanEatLeft) {
-    if (ifCanEatLeft) {
-      result.push([2, -2]);
-      let a = result.length - 1;
-      if (result !== undefined) {
-        let currentPiece = boardData.getPiece(
-          this.row + result[a][0],
-          this.col + result[a][1]
-        );
-
-        if (currentPiece !== undefined) {
-          result.pop();
-          a--;
-        }
-      }
-    }
-  }
-
-  ifBrownCanEatRight(result, ifCanEatRight) {
-    if (ifCanEatRight) {
-      result.push([-2, 2]);
-      let a = result.length - 1;
-      if (result !== undefined) {
-        let currentPiece = boardData.getPiece(
-          this.row + result[a][0],
-          this.col + result[a][1]
-        );
-
-        if (currentPiece !== undefined) {
-          result.pop();
-          a--;
-        }
-      }
-    }
-  }
-  ifBrownCanEatLeft(result, ifCanEatRight) {
-    if (ifCanEatRight) {
-      result.push([-2, -2]);
-      let a = result.length - 1;
-      if (result !== undefined) {
-        let currentPiece = boardData.getPiece(
-          this.row + result[a][0],
-          this.col + result[a][1]
-        );
-
-        if (currentPiece !== undefined) {
-          result.pop();
-          a--;
-        }
-      }
-    }
-  }
+ 
 }
