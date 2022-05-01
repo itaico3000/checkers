@@ -3,20 +3,19 @@ table {
     margin-left: auto;
     margin-right: auto;
     border-spacing: 0ch;
-    width: 300px;
-    height: 300px;
+    
   }
   
   .light-cell {
     background: rgb(211, 210, 210);
-    width: 70px;
-    height: 70px;
+    width: 75px;
+    height: 75px;
   }
   
   .dark-cell {
     background: rgb(173, 67, 25);
-    width: 70px;
-    height: 70px;
+    width: 75px;
+    height: 75px;
   }
   .selected{
     box-shadow:inset 0 0 40px rgb(73, 237, 8);

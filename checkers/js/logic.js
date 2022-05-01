@@ -1,7 +1,9 @@
 const BOARD_SIZE = 8;
-const WHITE_PLAYER = "blue";
-const BLACK_PLAYER = "brown";
+const BLUE_PLAYER = "blue";
+const BROWN_PLAYER = "brown";
 const piece = "Piece";
+let eatenPieceLeft;
+let eatenPieceRight;
 
 let selectedCell;
 let possibleMoves;
@@ -13,6 +15,8 @@ let lastcell;
 let savedPossibleMoves = [];
 let lastRow;
 let lastCol;
+let turn = 0;
+let lastTurn = 0;
 
 //removes cells classes from the board
 function removeCellClasses() {
@@ -24,13 +28,14 @@ function removeCellClasses() {
   }
 }
 
+//removes pieces images
 function removeCellPieces() {
   for (let i = 0; i < BOARD_SIZE; i++) {
     for (let j = 0; j < BOARD_SIZE; j++) {
       if (table.rows[i].cells[j].firstChild !== null) {
         let remove = boardData.getPiece(i, j);
         if (remove === undefined) {
-          table.rows[i].cells[j].firstChild.remove();
+          table.rows[i].cells[j].firstChild.remove("img");
         }
       }
     }
@@ -38,8 +43,21 @@ function removeCellPieces() {
 }
 
 //adds possible options
-function addPossibleOptions(piece) {
-  if (piece !== undefined) {
+function addPossibleOptions(piece, turn) {
+  if (piece !== undefined && turn % 2 === 0 && piece.player === BLUE_PLAYER) {
+    possibleMoves = piece.getPossibleMoves();
+
+    for (let possibleMove of possibleMoves) {
+      const cell = table.rows[possibleMove[0]].cells[possibleMove[1]];
+      cell.classList.add("selectedoptions");
+    }
+
+    return possibleMoves;
+  } else if (
+    piece !== undefined &&
+    turn % 2 !== 0 &&
+    piece.player === BROWN_PLAYER
+  ) {
     possibleMoves = piece.getPossibleMoves();
 
     for (let possibleMove of possibleMoves) {
@@ -53,40 +71,41 @@ function addPossibleOptions(piece) {
 
 //what happens onClick
 function onCellClick(event, row, col) {
-  if (selectedCell !== undefined && lastcell !== undefined) {
-    if (lastcell === selectedCell) {
+  if (selectedCell !== undefined) {
+    selectedCell.classList.remove("selected");
+
+    if (lastcell !== undefined && lastcell === selectedCell) {
       savePieces.push(lastcell.firstChild);
     }
   }
-  if (selectedCell !== undefined) {
-    selectedCell.classList.remove("selected");
-  }
+
   removeCellClasses();
 
   selectedCell = event.currentTarget;
-
+  if (selectedCell === lastcell) {
+    turn = lastTurn;
+  }
   selectedCell.classList.add("selected");
   let piece = boardData.getPiece(row, col);
   console.log(piece);
 
-  addPossibleOptions(piece);
+  addPossibleOptions(piece, turn);
 
-  let ifMove = move(savedPossibleMoves, row, col, savedPiece);
+  let ifMove = movePiece(savedPossibleMoves, row, col, savedPiece);
+
   if (ifMove) {
-    selectedCell = undefined;
+    turn++;
 
-    let direction = witchDirection(lastRow, lastCol, savedPiece);
-    console.log(direction);
-    if (direction === "left") {
-      removeEatenPiece(eatenPieceLeft);
-    } else {
-      removeEatenPiece(eatenPieceRight);
-    }
-    removeCellPieces();
+    eatPiece(lastRow, lastCol, savedPiece);
+    checkIfWinner();
+    selectedCell = undefined;
   }
+
   if (piece !== undefined && possibleMoves !== undefined) {
     savedPiece = piece;
     savedPossibleMoves = possibleMoves;
+    piece = undefined;
+    possibleMoves = undefined;
   }
 
   lastcell = selectedCell;
@@ -95,8 +114,17 @@ function onCellClick(event, row, col) {
   lastRow = row;
 }
 
+//return true if player has won
+function checkIfWinner() {
+  if (boardData.checkIfWon(BLUE_PLAYER)) {
+    console.log("brown has won the game");
+  } else if (boardData.checkIfWon(BROWN_PLAYER)) {
+    console.log("blue has won the game");
+  }
+}
+
 //move's a piece and return if it happen
-function move(savedPossibleMoves, row, col, savedPiece) {
+function movePiece(savedPossibleMoves, row, col, savedPiece) {
   let a = false;
   for (const i of savedPossibleMoves) {
     // for (const k of possibleMoves) {
@@ -116,9 +144,24 @@ function move(savedPossibleMoves, row, col, savedPiece) {
   return a;
 }
 
+//eats a piece , removes the piece from the board
+function eatPiece(lastRow, lastCol, savedPiece) {
+  let direction = witchDirection(lastRow, lastCol, savedPiece);
+  if (direction === "left") {
+    removeEatenPiece(eatenPieceLeft);
+    removeCellPieces();
+  } else {
+    removeEatenPiece(eatenPieceRight);
+    removeCellPieces();
+  }
+}
+
+//removes piece from the board
 function removeEatenPiece(eatenPiece) {
   boardData.removePiece(eatenPiece);
 }
+
+//return witch direction the pawn has moved
 function witchDirection(lastRow, lastCol, savedPiece) {
   console.log("this is last move ", lastRow, " , ", lastCol);
   console.log("this is last piece ", savedPiece);
@@ -137,13 +180,13 @@ function getInitialPieces() {
 
   for (let i = 0; i < BOARD_SIZE; i++) {
     if (i % 2 == 0) {
-      result.push(new Piece(1, i, WHITE_PLAYER));
-      result.push(new Piece(5, i, BLACK_PLAYER));
-      result.push(new Piece(7, i, BLACK_PLAYER));
+      result.push(new Piece(1, i, BLUE_PLAYER));
+      result.push(new Piece(5, i, BROWN_PLAYER));
+      result.push(new Piece(7, i, BROWN_PLAYER));
     } else {
-      result.push(new Piece(0, i, WHITE_PLAYER));
-      result.push(new Piece(2, i, WHITE_PLAYER));
-      result.push(new Piece(6, i, BLACK_PLAYER));
+      result.push(new Piece(0, i, BLUE_PLAYER));
+      result.push(new Piece(2, i, BLUE_PLAYER));
+      result.push(new Piece(6, i, BROWN_PLAYER));
     }
   }
 

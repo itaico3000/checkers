@@ -1,11 +1,5 @@
-const eatenPieces= [];
-let eatenPieceLeft ;
-let eatenPieceRight;
 let ifCanEatRight = false;
-    let ifCanEatLeft = false;
-    let DirectionRight;
-    let DirectionLeft;
-
+let ifCanEatLeft = false;
 class Piece {
 
   constructor(row, col, player) {
@@ -20,7 +14,7 @@ class Piece {
 
     let relativeMoves = [];
 
-    if (this.player === WHITE_PLAYER) {
+    if (this.player === BLUE_PLAYER) {
       relativeMoves = this.getBluePieceRelativeMoves();
     } else {
       relativeMoves = this.getBrownPieceRelativeMoves();
@@ -33,7 +27,6 @@ class Piece {
 
       absoluteMoves.push([absoluteRow, absoluteCol]);
     }
-    console.log("this is absoluteMoves  ", absoluteMoves);
     // Get filtered absolute moves
     let filteredMoves = [];
     for (let absoluteMove of absoluteMoves) {
@@ -49,7 +42,6 @@ class Piece {
         filteredMoves.push(absoluteMove); //push this possibility
       }
     }
-    console.log("this is filtered Moves ", filteredMoves);
     return filteredMoves;
     //return filteredMoves;
   }
@@ -65,11 +57,10 @@ class Piece {
       this.row + result[0][0],
       this.col + result[0][1]
     );
-    if (currentPiece !== undefined && currentPiece.player !== WHITE_PLAYER) {  
+    if (currentPiece !== undefined && currentPiece.player !== BLUE_PLAYER) {  
         result.pop();
       ifCanEatRight = true;
     eatenPieceRight=currentPiece; 
-    DirectionRight='right';    
 }
     else if(currentPiece !== undefined){
         result.pop();
@@ -86,11 +77,10 @@ class Piece {
       );
     }
 
-    if (currentPiece !== undefined && currentPiece.player !== WHITE_PLAYER) {
+    if (currentPiece !== undefined && currentPiece.player !== BLUE_PLAYER) {
         result.pop();
       ifCanEatLeft = true;
       eatenPieceLeft =currentPiece;
-      DirectionLeft='left';    
 
     }
     else if(currentPiece !== undefined){
@@ -99,9 +89,9 @@ class Piece {
     }
     this.ifCanEat(result, ifCanEatLeft,2,-2);
     this.ifCanEat(result, ifCanEatRight ,2,2);
-    
+    ifCanEatRight = false;
+    ifCanEatLeft=false;
 
-    console.log("this is result ", result);
     return result;
   }
 
@@ -113,16 +103,14 @@ class Piece {
     let ifCanEatLeft = false;
 
     result.push([-1, 1]); //a 0
-    let OnlyIfBlack;
     let currentPiece = boardData.getPiece(
       this.row + result[0][0],
       this.col + result[0][1]
     );
-    if (currentPiece !== undefined && currentPiece.player !== BLACK_PLAYER) {
+    if (currentPiece !== undefined && currentPiece.player !== BROWN_PLAYER) {
       result.pop();
       ifCanEatRight = true;
       eatenPieceRight =currentPiece;
-      DirectionRight='right';    
     }
     else if(currentPiece !== undefined){
         result.pop();
@@ -137,11 +125,10 @@ class Piece {
       );
     }
 
-    if (currentPiece !== undefined && currentPiece.player !== BLACK_PLAYER) {
+    if (currentPiece !== undefined && currentPiece.player !== BROWN_PLAYER) {
       result.pop();
       ifCanEatLeft = true;
       eatenPieceLeft =currentPiece;
-      DirectionLeft='left';    
 
     }
     else if(currentPiece !== undefined){
@@ -150,11 +137,13 @@ class Piece {
     }
     this.ifCanEat(result, ifCanEatLeft,-2,-2);
     this.ifCanEat(result, ifCanEatRight ,-2,2);
-
+    ifCanEatRight = false;
+    ifCanEatLeft=false;
     
     return result;
   }
 
+  //removes the option from possible moves if he cant eat
   ifCanEat(result, ifCanEatRight ,row ,col) {
     if (ifCanEatRight) {
       result.push([row, col]);
@@ -171,6 +160,7 @@ class Piece {
         }
       }
     }
+   
   }
 
  

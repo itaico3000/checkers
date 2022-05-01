@@ -12,18 +12,18 @@ class BoardData {
       }
     }
 
+    //changes the location in the array
     changeLocation(lastPiece,row,col) {
 
         let remove = this.getPiece(lastPiece.row, lastPiece.col);
         let lastmove = [lastPiece.row,lastPiece.col]
        remove.row =row;
        remove.col=col;
-        // this.pieces.push(new Piece(row, col,lastPiece.player));
-    
-        // this.pieces.splice(this.pieces.indexOf(remove), 1);
-    
+       
         return lastmove;
       }
+
+      //remove piece from the array
       removePiece(eatenPiece){
         for (const piece of this.pieces) {
             if (eatenPiece!==undefined&&eatenPiece===piece) {
@@ -31,4 +31,18 @@ class BoardData {
             }
           } 
       }
+
+      checkIfWon(color){
+        for (const piece of this.pieces) {
+            if (piece.player===color) {
+
+                possibleMoves=piece.getPossibleMoves();
+                if (possibleMoves.length >0) {
+                    return false;
+                }
+            }
+          }
+          return true;
+      }
+
 }
