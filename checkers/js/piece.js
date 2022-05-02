@@ -69,7 +69,7 @@ class Piece {
      }
     ifCanEatRight = false;
     ifCanEatLeft=false;
-     
+    
     return result;
   }
 
@@ -163,10 +163,9 @@ multipleJumps(){
     
 
     if (currentPiece !== undefined && currentPiece.player !== color) {
-     
-      eatenPieceLeft.push(currentPiece);
+     eatenPieceLeft.push([currentPiece.row ,currentPiece.col]);
       a= true;
-
+    possibleEaten.push([currentPiece.row ,currentPiece.col]);
     }
     return a;
  }
@@ -183,8 +182,9 @@ multipleJumps(){
 
  if (currentPiece !== undefined && currentPiece.player !== color) {
   
-   eatenPieceRight.push(currentPiece) ;
-   a= true;
+    eatenPieceLeft.push([currentPiece.row ,currentPiece.col]);
+    a= true;
+    possibleEaten.push([currentPiece.row ,currentPiece.col]);
 
  }
  return a;

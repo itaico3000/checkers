@@ -4,7 +4,8 @@ const BROWN_PLAYER = "brown";
 const piece = "Piece";
 let eatenPieceLeft = [];
 let eatenPieceRight = [];
-
+let possibleEaten = [];
+let savedPossibleEaten = [];
 let selectedCell;
 let possibleMoves;
 let pieces = [];
@@ -18,7 +19,8 @@ let lastCol;
 let turn = 0;
 let lastTurn = 0;
 let canEat = false;
-let hasEaten;
+let attackColor = "";
+let ifCanMove = false;
 
 //removes cells classes from the board
 function removeCellClasses() {
@@ -62,6 +64,10 @@ function addPossibleOptions(piece, turn) {
   ) {
     possibleMoves = piece.getPossibleMoves();
 
+    if (possibleMoves !== savedPossibleMoves) {
+      eatenPieceLeft = [];
+      eatenPieceRight = [];
+    }
     for (let possibleMove of possibleMoves) {
       const cell = table.rows[possibleMove[0]].cells[possibleMove[1]];
       cell.classList.add("selectedoptions");
@@ -79,6 +85,9 @@ function onCellClick(event, row, col) {
     if (lastcell !== undefined && lastcell === selectedCell) {
       savePieces.push(lastcell.firstChild);
     }
+    // if (savedPiece!==undefined &&piece!==undefined) {
+
+    // }
   }
 
   removeCellClasses();
@@ -91,57 +100,42 @@ function onCellClick(event, row, col) {
 
   addPossibleOptions(piece, turn);
 
-  let ifMove = false;
-  ifMove = movePiece(savedPossibleMoves, row, col, savedPiece);
-  console.log(eatenPieceLeft, "this is left");
-  console.log(eatenPieceRight, "this is right");
+  ifCanMove = canMovePiece(savedPossibleMoves, row, col, savedPiece);
 
-  if (ifMove) {
-    turn++;
-    hasEaten = eatPieces(savedPossibleMoves, row, col, savedPiece);
+  console.log(possibleEaten, "this is");
+  console.log(savedPossibleEaten, "this is saved");
+
+  if (ifCanMove) {
+    turn += movePiece(savedPossibleMoves, row, col, savedPiece);
+
+    if (lastTurn % 2 == 0) {
+      attackColor = BROWN_PLAYER;
+    } else {
+      attackColor = BLUE_PLAYER;
+    }
+    if (turn > lastTurn) {
+      let direction = witchDirection(lastRow, lastCol, savedPiece);
+      eatPiece(savedPossibleEaten, attackColor, direction, lastCol);
+    }
+    console.log("this is turn!!!!!!!!!!!!!!!1", turn);
+
     checkIfWinner();
-  
+    selectedCell = undefined;
   }
-
-  if (selectedCell!==undefined) {
-    eatenPieceLeft=[];
-    eatenPieceRight=[];
-  }
-
-  // if (
-  //   piece !== undefined &&
-  //   savedPiece !== undefined &&
-  //   piece === savedPiece
-  // ) {
-  //   console.log(piece, "itai the king");
-  //   console.log(savedPiece, "shir the king");
-  // }
-  //  else if (
-  //   piece !== undefined &&
-  //   savedPiece !== undefined &&
-  //   piece !== savedPiece
-
-  // )
-  //  {
-  //   console.log(piece, " the king");
-  //   console.log(savedPiece, "saved piece != piece");
-  //   eatenPieceLeft = [];
-  //   eatenPieceRight = [];
-  // }
 
   if (piece !== undefined && possibleMoves !== undefined) {
     savedPiece = piece;
     savedPossibleMoves = possibleMoves;
+    savedPossibleEaten = possibleEaten;
     piece = undefined;
     possibleMoves = undefined;
+    possibleEaten = [];
   }
   lastTurn = turn;
   lastcell = selectedCell;
   savePieces = [];
   lastCol = col;
   lastRow = row;
-
-  hasEaten = false;
 }
 
 //return true if player has won
@@ -154,8 +148,24 @@ function checkIfWinner() {
 }
 
 //move's a piece and return if it happen
-function movePiece(savedPossibleMoves, row, col, savedPiece) {
+function canMovePiece(savedPossibleMoves, row, col, savedPiece) {
   let a = false;
+  for (const i of savedPossibleMoves) {
+    if (i !== undefined && i[0] === row && i[1] === col) {
+      // if (savePieces.length > 0 && savePieces[0] !== null) {
+      //   let cell = table.rows[i[0]].cells[i[1]].append(savePieces.pop());
+      //   cell = table.rows[i[0]].cells[i[1]];
+      //   boardData.changeLocation(savedPiece, row, col);
+
+      //   return true;
+      // }
+      return true;
+    }
+  }
+  return a;
+}
+
+function movePiece(savedPossibleMoves, row, col, savedPiece) {
   for (const i of savedPossibleMoves) {
     if (i !== undefined && i[0] === row && i[1] === col) {
       if (savePieces.length > 0 && savePieces[0] !== null) {
@@ -163,42 +173,39 @@ function movePiece(savedPossibleMoves, row, col, savedPiece) {
         cell = table.rows[i[0]].cells[i[1]];
         boardData.changeLocation(savedPiece, row, col);
 
-        return true;
+        return 1;
       }
     }
   }
-  return a;
 }
 
-function eatPieces(savedPossibleMoves, row, col, savedPiece) {
-  let a = false;
-  for (const i of savedPossibleMoves) {
-    if (i !== undefined && i[0] === row && i[1] === col) {
-      eatPiece(lastRow, lastCol, savedPiece);
-
-      return true;
-    }
-  }
-  return a;
-}
 //eats a piece , removes the piece from the board
-function eatPiece(lastRow, lastCol, savedPiece) {
-  let direction = witchDirection(lastRow, lastCol, savedPiece);
-  if (direction === "left" && eatenPieceLeft !== undefined) {
-    removeEatenPiece(eatenPieceLeft.pop());
-    removeCellPieces();
-    eatenPieceLeft = [];
-    eatenPieceRight = [];
-  } else if (direction === "right" && eatenPieceRight !== undefined) {
-    removeEatenPiece(eatenPieceRight.pop());
-    removeCellPieces();
-    eatenPieceLeft = [];
-    eatenPieceRight = [];
+
+function eatPiece(savedPossibleEaten, attackColor, direction, lastCol) {
+  for (const possible of savedPossibleEaten) {
+    let piece = boardData.getPiece(possible[0], possible[1]);
+    if (
+      piece !== undefined &&
+      piece.player === attackColor &&
+      direction === "left" &&
+      lastCol > piece.col
+    ) {
+      boardData.removePiece(piece);
+      removeCellPieces();
+    } else if (
+      piece !== undefined &&
+      piece.player === attackColor &&
+      direction === "right" &&
+      lastCol < piece.col
+    ) {
+      boardData.removePiece(piece);
+      removeCellPieces();
+    }
   }
 }
 
 //removes piece from the board
-function removeEatenPiece(eatenPiece) {
+function removeEatenPiece(eatenPiece, turn) {
   boardData.removePiece(eatenPiece);
 }
 
