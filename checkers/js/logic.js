@@ -26,7 +26,7 @@ let secondJump;
 let saveIfHasEaten;
 let hasEaten;
 let saveCell;
-let count = 0;
+let count = 3;
 let countEating = 0;
 
 function getMultipleJumpBackWards(piece, row, col) {
