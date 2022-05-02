@@ -22,6 +22,132 @@ let canEat = false;
 let attackColor = "";
 let ifCanMove = false;
 
+function getMultipleJumps(piece, fromHere, color) {
+  let arr = [];
+  let num = 0;
+  let thisAttcker;
+  let attackCol;
+  let attackerRow;
+  let jumpPieceCol;
+  let jumpPieceRow;
+  let endOfJump;
+  let row = 1;
+  let col = 1;
+  //todo - only the current piece can do things
+  console.log(fromHere);
+  for (let i = 1; i < 8; i++) {
+    attackerRow = piece.row + fromHere[0] + row * i; // 4 ,5
+    attackCol = piece.col + fromHere[1] + col * i;
+    thisAttcker = boardData.getPiece(attackerRow, attackCol);
+
+    jumpPieceRow = piece.row + fromHere[0] + row * (i + 1);
+    jumpPieceCol = piece.col + fromHere[1] + col * (i + 1);
+
+    endOfJump = boardData.getPiece(jumpPieceRow, jumpPieceCol);
+    if (
+      thisAttcker !== undefined &&
+      thisAttcker.player !== color &&
+      endOfJump === undefined &&
+      thisAttcker !== piece
+    ) {
+      console.log("attacker row in", attackerRow, "   ", i);
+      console.log("attacker col in ", attackCol);
+      console.log("end of jump row in ", jumpPieceRow);
+      console.log("end of jump col  in", jumpPieceCol);
+
+      arr.push([jumpPieceRow - piece.row, jumpPieceCol - piece.col]);
+      console.log(arr);
+      possibleEaten.push([attackerRow, attackCol]);
+      let r = [];
+      arr = arr.concat(
+        getMultipleJumpsOfMultipleJumps(
+          piece,
+          [jumpPieceRow - piece.row, jumpPieceCol - piece.col],
+          BLUE_PLAYER
+        )
+      );
+      console.log("this is r", r);
+    } else if (num === 0) {
+      i = 0;
+      row = -1;
+      col = -1;
+      num++;
+      console.log("in ", i);
+    } else if (num === 1) {
+      row = -1;
+      col = 1;
+      num++;
+      i = 0;
+      console.log("in 2", i);
+    } else if (num === 2) {
+      i = 0;
+      row = 1;
+      col = -1;
+      num++;
+      console.log("in 3");
+    } else if (num === 3) {
+      console.log("out");
+      return arr;
+    }
+  }
+  return arr;
+}
+
+function getMultipleJumpsOfMultipleJumps(piece, fromHere, color) {
+  let arr = [];
+  let num = 0;
+  let thisAttcker;
+  let attackCol;
+  let attackerRow;
+  let jumpPieceCol;
+  let jumpPieceRow;
+  let endOfJump;
+  let row = 1;
+  let col = 1;
+  //todo - only the current piece can do things
+  console.log(fromHere);
+  for (let i = 1; i < 8; i++) {
+    attackerRow = piece.row + fromHere[0] + row * i; // 4 ,5
+    attackCol = piece.col + fromHere[1] + col * i;
+    thisAttcker = boardData.getPiece(attackerRow, attackCol);
+
+    jumpPieceRow = piece.row + fromHere[0] + row * (i + 1);
+    jumpPieceCol = piece.col + fromHere[1] + col * (i + 1);
+    Jump = boardData.getPiece(jumpPieceRow, jumpPieceCol);
+    if (
+      thisAttcker !== undefined &&
+      thisAttcker.player !== color &&
+      endOfJump === undefined &&
+      thisAttcker !== piece
+    ) {
+      arr.push([jumpPieceRow - piece.row, jumpPieceCol - piece.col]);
+      possibleEaten.push([attackerRow, attackCol]);
+    } else if (num === 0) {
+      i = 0;
+      row = -1;
+      col = -1;
+      num++;
+      console.log("in r", i);
+    } else if (num === 1) {
+      row = -1;
+      col = 1;
+      num++;
+      i = 0;
+      console.log("in r", i);
+    } else if (num === 2) {
+      i = 0;
+      row = 1;
+      col = -1;
+      num++;
+      console.log("in r3");
+    } else if (num === 3) {
+      console.log("out r");
+      return arr;
+    }
+  }
+  return arr;
+}
+
 //removes cells classes from the board
 function removeCellClasses() {
   for (let i = 0; i < BOARD_SIZE; i++) {
@@ -115,7 +241,7 @@ function onCellClick(event, row, col) {
     }
     if (turn > lastTurn) {
       let direction = witchDirection(lastRow, lastCol, savedPiece);
-      eatPiece(savedPossibleEaten, attackColor, direction, lastCol);
+      // eatPiece(savedPossibleEaten, attackColor, direction, lastCol);
     }
     console.log("this is turn!!!!!!!!!!!!!!!1", turn);
 
@@ -204,11 +330,6 @@ function eatPiece(savedPossibleEaten, attackColor, direction, lastCol) {
   }
 }
 
-//removes piece from the board
-function removeEatenPiece(eatenPiece, turn) {
-  boardData.removePiece(eatenPiece);
-}
-
 //return witch direction the pawn has moved
 function witchDirection(lastRow, lastCol, savedPiece) {
   let col = savedPiece.col;
@@ -226,12 +347,12 @@ function getInitialPieces() {
   for (let i = 0; i < BOARD_SIZE; i++) {
     if (i % 2 == 0) {
       result.push(new Piece(1, i, BLUE_PLAYER));
+      result.push(new Piece(3, i, BROWN_PLAYER));
       result.push(new Piece(5, i, BROWN_PLAYER));
-      result.push(new Piece(7, i, BROWN_PLAYER));
     } else {
       result.push(new Piece(0, i, BLUE_PLAYER));
       result.push(new Piece(2, i, BLUE_PLAYER));
-      result.push(new Piece(6, i, BROWN_PLAYER));
+      //result.push(new Piece(6, i, BROWN_PLAYER));
     }
   }
 
