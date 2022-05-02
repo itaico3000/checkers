@@ -41,7 +41,6 @@ class Piece {
         filteredMoves.push(absoluteMove); //push this possibility
       }
     }
-    console.log(filteredMoves);
     return filteredMoves;
     //return filteredMoves;
   }
@@ -50,6 +49,8 @@ class Piece {
   getBluePieceRelativeMoves() {
     let result = [];
     let arr=[]
+    eatenPieceLeft=[];
+    eatenPieceRight=[];
     let ifCanEatRight = false;
     let ifCanEatLeft = false;
     let CanContinueLeft =false;
@@ -57,12 +58,12 @@ class Piece {
     result =result.concat(this.ifCanMove(result,BLUE_PLAYER,1,-1));
     ifCanEatLeft =this.ifCanContinueLeft(BLUE_PLAYER ,1,-1);
     CanContinueLeft= this.ifCanEat(result, ifCanEatLeft,2,-2);
-    if (CanContinueLeft&&ifCanEatLeft) {
-        ifCanEatRight = false;
-        ifCanEatLeft=false;
-        console.log('you can continue left');
-        result =result.concat(getMultipleJumps(this,result[result.length-1],BLUE_PLAYER));
-    }
+    // if (CanContinueLeft&&ifCanEatLeft) {
+    //     ifCanEatRight = false;
+    //     ifCanEatLeft=false;
+    //     //arr =arr.concat(getMultipleJumps(this,result[result.length-1],BLUE_PLAYER));
+    //     console.log('this is all the poosible moves ', arr);
+    // }
 
     result =result.concat(this.ifCanMove(result,BLUE_PLAYER,1,1));
     ifCanEatRight =this.ifCanContinueRight(BLUE_PLAYER ,1,1);
@@ -75,13 +76,14 @@ class Piece {
     if (CanContinueLeft&&ifCanEatLeft) {
         ifCanEatRight = false;
         ifCanEatLeft=false;
-        console.log('you can continue left');
-        //result =result.concat(this.getMultipleJumps())
+        let e = eatenPieceLeft.pop();
+        possibleEaten.push([e[0],e[1]])
     }
     if (CanContinueRight&&ifCanEatRight) {
         ifCanEatRight = false;
         ifCanEatLeft=false;
-        result =result.concat(getMultipleJumps(this,result[result.length-1],BLUE_PLAYER));
+        let e = eatenPieceRight.pop();
+        possibleEaten.push([e[0],e[1]]) 
      }
    
     
@@ -92,30 +94,36 @@ class Piece {
   getBrownPieceRelativeMoves() {
     possibleEaten =[];
     let result = [];
+    eatenPieceLeft=[];
+    eatenPieceRight=[];
     let ifCanEatRight = false;
     let ifCanEatLeft = false;
     let CanContinueLeft =false;
     let CanContinueRight=false;
     result =result.concat(this.ifCanMove(result,BROWN_PLAYER,-1,-1));
     ifCanEatLeft =this.ifCanContinueLeft(BROWN_PLAYER ,-1,-1);
-
+    CanContinueLeft= this.ifCanEat(result, ifCanEatLeft,-2,-2);
+    if (CanContinueLeft&&ifCanEatLeft) {
+        ifCanEatRight = false;
+        ifCanEatLeft=false;
+        let e = eatenPieceLeft.pop();
+        possibleEaten.push([e[0],e[1]])
+    }
     result =result.concat(this.ifCanMove(result,BROWN_PLAYER,-1,1));
     ifCanEatRight =this.ifCanContinueRight(BROWN_PLAYER ,-1,1);
    
-    CanContinueLeft= this.ifCanEat(result, ifCanEatLeft,-2,-2);
     CanContinueRight=this.ifCanEat(result, ifCanEatRight ,-2,2);
     
     
-    if (CanContinueLeft) {
     
-    }
-    if (CanContinueRight) {
+    if (CanContinueRight&&ifCanEatRight) {
+        ifCanEatRight = false;
+        ifCanEatLeft=false;
+        let e = eatenPieceRight.pop();
+        possibleEaten.push([e[0],e[1]]) 
+
      }
-    ifCanEatRight = false;
-    ifCanEatLeft=false;
-    //eatenPieceLeft.pop();
-    //eatenPieceRight.pop();
-    
+   
     
     return result;
   }
@@ -176,9 +184,9 @@ ifCanMove(result,color ,row ,col){
     
 
     if (currentPiece !== undefined && currentPiece.player !== color) {
-     eatenPieceLeft.push([currentPiece.row ,currentPiece.col]);
       a= true;
-    possibleEaten.push([currentPiece.row ,currentPiece.col]);
+      eatenPieceLeft.push([currentPiece.row ,currentPiece.col]);
+
     }
     return a;
  }
@@ -195,9 +203,8 @@ ifCanMove(result,color ,row ,col){
 
  if (currentPiece !== undefined && currentPiece.player !== color) {
   
-    eatenPieceLeft.push([currentPiece.row ,currentPiece.col]);
     a= true;
-    possibleEaten.push([currentPiece.row ,currentPiece.col]);
+    eatenPieceRight.push([currentPiece.row ,currentPiece.col]);
 
  }
  return a;
