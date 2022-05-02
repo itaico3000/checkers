@@ -27,6 +27,7 @@ let saveIfHasEaten;
 let hasEaten;
 let saveCell;
 let count = 3;
+let countEating = 0;
 
 function getMultipleJumps(piece, fromHere, color) {
   let arr = [];
@@ -166,19 +167,37 @@ function removeCellPieces() {
   }
 }
 
+function filterAfterEating(possibleMoves, piece) {
+  let arr = [];
+  for (let i = 0; i < possibleMoves.length; i++) {
+    let row = possibleMoves[i][0];
+    let col = possibleMoves[i][1];
+
+    if (row - piece.row === 1 || row - piece.row === -1) {
+      possibleMoves.splice(i, 1);
+      i--;
+    }
+  }
+  return possibleMoves;
+}
+
 //adds possible options
-function addPossibleOptions(piece, turn, hasEaten) {
+function addPossibleOptions(piece, turn, hasEaten, countEating) {
   if (hasEaten === true) {
     console.log("happend");
     if (piece !== undefined) {
       possibleMoves = piece.getPossibleMoves();
-      console.log(possibleEaten, "itai ");
+      if (countEating > 0) {
+        possibleMoves = filterAfterEating(possibleMoves, piece);
+      }
+      console.log(possibleMoves, "itai ");
       if (possibleEaten.length === 0) {
         return turn++;
       }
 
       for (let possibleMove of possibleMoves) {
         const cell = table.rows[possibleMove[0]].cells[possibleMove[1]];
+
         cell.classList.add("selectedoptions");
       }
 
@@ -190,7 +209,9 @@ function addPossibleOptions(piece, turn, hasEaten) {
     piece.player === BLUE_PLAYER
   ) {
     possibleMoves = piece.getPossibleMoves();
-
+    if (countEating > 0) {
+      possibleMoves = filterAfterEating(possibleMoves, piece);
+    }
     for (let possibleMove of possibleMoves) {
       const cell = table.rows[possibleMove[0]].cells[possibleMove[1]];
       cell.classList.add("selectedoptions");
@@ -203,7 +224,9 @@ function addPossibleOptions(piece, turn, hasEaten) {
     piece.player === BROWN_PLAYER
   ) {
     possibleMoves = piece.getPossibleMoves();
-
+    if (countEating > 0) {
+      possibleMoves = filterAfterEating(possibleMoves, piece);
+    }
     if (possibleMoves !== savedPossibleMoves) {
       eatenPieceLeft = [];
       eatenPieceRight = [];
@@ -242,9 +265,9 @@ function onCellClick(event, row, col) {
   console.log(piece);
 
   if (hasEaten === true && saveCell === selectedCell) {
-    secondJump = addPossibleOptions(saveIfHasEaten, turn, hasEaten);
+    addPossibleOptions(saveIfHasEaten, turn, hasEaten, countEating);
   } else if (hasEaten === undefined) {
-    secondJump = addPossibleOptions(piece, turn, undefined);
+    addPossibleOptions(piece, turn, undefined, countEating);
   } else if (
     piece !== undefined &&
     piece.player === attackColor &&
@@ -262,10 +285,12 @@ function onCellClick(event, row, col) {
       let h2 = document.querySelector("h2");
       h2.innerHTML = "brown turn ";
       attackColor = BROWN_PLAYER;
+      countEating = 0;
     } else if (lastTurn % 2 !== 0) {
       let h2 = document.querySelector("h2");
       h2.innerHTML = "blue turn ";
       attackColor = BLUE_PLAYER;
+      countEating = 0;
     }
 
     if (turn > lastTurn) {
@@ -282,6 +307,8 @@ function onCellClick(event, row, col) {
         if (possibleMoves.length > 0 && possibleEaten.length > 0) {
           turn--;
           console.log("possible eaten ", possibleEaten);
+          countEating++;
+          console.log("numbers of eating ", countEating);
         }
         removeCellClasses();
         selectedCell = undefined;
@@ -290,15 +317,10 @@ function onCellClick(event, row, col) {
 
       possibleEaten = [];
     }
-    console.log("this is turn!!!!!!!!!!!!!!!1", turn);
 
     checkIfWinner();
   }
-  // if (possibleMoves===undefined) {
-  //   hasEaten =undefined;
-  //   piece =undefined;
-  //   firstJump=0;
-  // }
+
   if (
     savedPiece !== undefined &&
     hasEaten === undefined &&
@@ -306,11 +328,11 @@ function onCellClick(event, row, col) {
     count === 0 &&
     selectedCell.firstChild !== null
   ) {
-    console.log(" this is sAVED PIECE ", savedPiece);
     savedPiece.getPossibleMoves();
     if (possibleEaten.length < 1) {
       turn++;
       count = 1;
+      countEating = 0;
     }
   }
 
@@ -385,6 +407,13 @@ function movePiece(row, col, savedPiece) {
 function eatPiece(savedPossibleEaten, attackColor, direction, lastCol) {
   for (const possible of savedPossibleEaten) {
     let piece = boardData.getPiece(possible[0], possible[1]);
+    console.log(piece, "this is piece");
+    console.log(possible, "this is possible");
+
+    console.log(lastCol, " this is last col");
+    console.log(direction, " this is dircetion");
+    console.log(attackColor, " this is color");
+
     if (
       piece !== undefined &&
       piece.player === attackColor &&
@@ -418,6 +447,7 @@ function witchDirection(lastRow, lastCol, savedPiece) {
     return "right";
   }
 }
+
 function witchDirectionHeWent(lastRow, lastCol, savedPiece) {
   let col = savedPiece.col;
   let row = savedPiece.row;
