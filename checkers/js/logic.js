@@ -26,119 +26,32 @@ let secondJump;
 let saveIfHasEaten;
 let hasEaten;
 let saveCell;
-let count = 3;
+let count = 0;
 let countEating = 0;
 
-function getMultipleJumps(piece, fromHere, color) {
+function getMultipleJumpBackWards(piece, row, col) {
   let arr = [];
-  let num = 0;
   let thisAttcker;
   let attackCol;
   let attackerRow;
   let jumpPieceCol;
   let jumpPieceRow;
   let endOfJump;
-  let row = 1;
-  let col = 1;
-  let direction = [];
-  firstJump = [piece.row + fromHere[0], piece.col + fromHere[1]];
 
-  //todo - only the current piece can do things
-  for (let i = 1; i < 8; i++) {
-    attackerRow = piece.row + fromHere[0] + row * i; // 4 ,5
-    attackCol = piece.col + fromHere[1] + col * i;
-    thisAttcker = boardData.getPiece(attackerRow, attackCol);
-
-    jumpPieceRow = piece.row + fromHere[0] + row * (i + 1);
-    jumpPieceCol = piece.col + fromHere[1] + col * (i + 1);
-
-    endOfJump = boardData.getPiece(jumpPieceRow, jumpPieceCol);
-    if (
-      thisAttcker !== undefined &&
-      thisAttcker.player !== color &&
-      endOfJump === undefined &&
-      thisAttcker !== piece
-    ) {
-      arr.push([jumpPieceRow, jumpPieceCol]);
-
-      secondJump = [jumpPieceRow, jumpPieceCol];
-      // possibleEaten.push([attackerRow, attackCol]);
-
-      arr = arr.concat(
-        getMultipleJumpsOfMultipleJumps(
-          piece,
-          [jumpPieceRow - piece.row, jumpPieceCol - piece.col],
-          BLUE_PLAYER
-        )
-      );
-    } else if (num === 0) {
-      i = 0;
-      row = -1;
-      col = -1;
-      num++;
-    } else if (num === 1) {
-      row = -1;
-      col = 1;
-      num++;
-      i = 0;
-    } else if (num === 2) {
-      i = 0;
-      row = 1;
-      col = -1;
-      num++;
-    } else if (num === 3) {
-      return arr;
-    }
-  }
-  return arr;
-}
-
-function getMultipleJumpsOfMultipleJumps(piece, fromHere, color) {
-  let arr = [];
-  let num = 0;
-  let thisAttcker;
-  let attackCol;
-  let attackerRow;
-  let jumpPieceCol;
-  let jumpPieceRow;
-  let endOfJump;
-  let row = 1;
-  let col = 1;
-  //todo - only the current piece can do things
-  for (let i = 1; i < 8; i++) {
-    attackerRow = piece.row + fromHere[0] + row * i; // 4 ,5
-    attackCol = piece.col + fromHere[1] + col * i;
-    thisAttcker = boardData.getPiece(attackerRow, attackCol);
-
-    jumpPieceRow = piece.row + fromHere[0] + row * (i + 1);
-    jumpPieceCol = piece.col + fromHere[1] + col * (i + 1);
-    Jump = boardData.getPiece(jumpPieceRow, jumpPieceCol);
-    if (
-      thisAttcker !== undefined &&
-      thisAttcker.player !== color &&
-      endOfJump === undefined &&
-      thisAttcker !== piece
-    ) {
-      arr.push([jumpPieceRow, jumpPieceCol]);
-      // possibleEaten.push([attackerRow, attackCol]);
-    } else if (num === 0) {
-      i = 0;
-      row = -1;
-      col = -1;
-      num++;
-    } else if (num === 1) {
-      row = -1;
-      col = 1;
-      num++;
-      i = 0;
-    } else if (num === 2) {
-      i = 0;
-      row = 1;
-      col = -1;
-      num++;
-    } else if (num === 3) {
-      return arr;
-    }
+  attackerRow = piece.row + row; // 4 ,5
+  attackCol = piece.col + col;
+  thisAttcker = boardData.getPiece(attackerRow, attackCol);
+  jumpPieceRow = piece.row + row * 2;
+  jumpPieceCol = piece.col + col * 2;
+  endOfJump = boardData.getPiece(jumpPieceRow, jumpPieceCol);
+  if (
+    thisAttcker !== undefined &&
+    thisAttcker.player !== piece.color &&
+    endOfJump === undefined &&
+    thisAttcker !== piece
+  ) {
+    arr.push([jumpPieceRow - piece.row, jumpPieceCol - piece.col]);
+    possibleEaten.push([attackerRow, attackCol]);
   }
   return arr;
 }
@@ -150,6 +63,12 @@ function removeCellClasses() {
       table.rows[i].cells[j].classList.remove("selectedoptions");
       table.rows[i].cells[j].classList.remove("selected");
     }
+  }
+}
+
+function checkIfCanGoBack(countEating) {
+  if (countEating > 0) {
+    return true;
   }
 }
 
@@ -178,19 +97,24 @@ function filterAfterEating(possibleMoves, piece) {
       i--;
     }
   }
+
   return possibleMoves;
 }
 
 //adds possible options
 function addPossibleOptions(piece, turn, hasEaten, countEating) {
   if (hasEaten === true) {
-    console.log("happend");
     if (piece !== undefined) {
       possibleMoves = piece.getPossibleMoves();
       if (countEating > 0) {
         possibleMoves = filterAfterEating(possibleMoves, piece);
+        possibleMoves = possibleMoves.concat(
+          getMultipleJumpBackWards(piece, -1, -1)
+        );
+        possibleMoves = possibleMoves.concat(
+          getMultipleJumpBackWards(piece, -1, 1)
+        );
       }
-      console.log(possibleMoves, "itai ");
       if (possibleEaten.length === 0) {
         return turn++;
       }
@@ -244,6 +168,7 @@ function addPossibleOptions(piece, turn, hasEaten, countEating) {
 function onCellClick(event, row, col) {
   if (hasEaten === true) {
     count = 0;
+    countEating = 0;
   }
   if (selectedCell !== undefined) {
     selectedCell.classList.remove("selected");
@@ -262,11 +187,13 @@ function onCellClick(event, row, col) {
   selectedCell.classList.add("selected");
 
   let piece = boardData.getPiece(row, col);
-  console.log(piece);
 
   if (hasEaten === true && saveCell === selectedCell) {
+    console.log("in first ", countEating);
+
     addPossibleOptions(saveIfHasEaten, turn, hasEaten, countEating);
   } else if (hasEaten === undefined) {
+    console.log("in ", countEating);
     addPossibleOptions(piece, turn, undefined, countEating);
   } else if (
     piece !== undefined &&
@@ -301,14 +228,10 @@ function onCellClick(event, row, col) {
         saveCell = selectedCell;
         saveIfHasEaten = savedPiece;
         possibleEaten = [];
-        console.log("this is the only pawn that can moves", saveIfHasEaten);
-        console.log(saveCell);
         possibleMoves = saveIfHasEaten.getPossibleMoves();
         if (possibleMoves.length > 0 && possibleEaten.length > 0) {
           turn--;
-          console.log("possible eaten ", possibleEaten);
           countEating++;
-          console.log("numbers of eating ", countEating);
         }
         removeCellClasses();
         selectedCell = undefined;
@@ -320,16 +243,21 @@ function onCellClick(event, row, col) {
 
     checkIfWinner();
   }
+  console.log("numbers of eating ", countEating);
 
   if (
     savedPiece !== undefined &&
     hasEaten === undefined &&
     turn === lastTurn &&
-    count === 0 &&
-    selectedCell.firstChild !== null
+    count === 0
   ) {
-    savedPiece.getPossibleMoves();
-    if (possibleEaten.length < 1) {
+    possibleEaten = [];
+
+    let r = savedPiece.getPossibleMoves();
+    possibleMoves = filterAfterEating(r, savedPiece);
+
+    if (r.length < 1) {
+      console.log("in 333");
       turn++;
       count = 1;
       countEating = 0;
@@ -407,12 +335,6 @@ function movePiece(row, col, savedPiece) {
 function eatPiece(savedPossibleEaten, attackColor, direction, lastCol) {
   for (const possible of savedPossibleEaten) {
     let piece = boardData.getPiece(possible[0], possible[1]);
-    console.log(piece, "this is piece");
-    console.log(possible, "this is possible");
-
-    console.log(lastCol, " this is last col");
-    console.log(direction, " this is dircetion");
-    console.log(attackColor, " this is color");
 
     if (
       piece !== undefined &&
@@ -439,30 +361,11 @@ function eatPiece(savedPossibleEaten, attackColor, direction, lastCol) {
 //return witch direction the pawn has moved
 function witchDirection(lastRow, lastCol, savedPiece) {
   let col = savedPiece.col;
-  let row = savedPiece.row;
-  console.log("this is saved piece ", savedPiece);
+
   if (col < lastCol) {
     return "left";
   } else {
     return "right";
-  }
-}
-
-function witchDirectionHeWent(lastRow, lastCol, savedPiece) {
-  let col = savedPiece.col;
-  let row = savedPiece.row;
-  let direction;
-
-  if (col < lastCol) {
-    direction = "left";
-  } else {
-    direction = "right";
-  }
-  direction += "-";
-  if (row < lastRow) {
-    direction = "down";
-  } else {
-    direction = "up";
   }
 }
 
@@ -473,8 +376,8 @@ function getInitialPieces() {
   for (let i = 0; i < BOARD_SIZE; i++) {
     if (i % 2 == 0) {
       result.push(new Piece(1, i, BLUE_PLAYER));
-      result.push(new Piece(7, i, BROWN_PLAYER));
       result.push(new Piece(5, i, BROWN_PLAYER));
+      result.push(new Piece(7, i, BROWN_PLAYER));
     } else {
       result.push(new Piece(0, i, BLUE_PLAYER));
       result.push(new Piece(2, i, BLUE_PLAYER));

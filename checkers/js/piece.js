@@ -1,3 +1,4 @@
+
 class Piece {
   constructor(row, col, player) {
     this.row = row;
@@ -46,22 +47,19 @@ class Piece {
   //returns array of White piece possible moves
   getBluePieceRelativeMoves() {
     let result = [];
-    let arr = [];
+    let count =0;
     eatenPieceLeft = [];
     eatenPieceRight = [];
     let ifCanEatRight = false;
     let ifCanEatLeft = false;
     let CanContinueLeft = false;
     let CanContinueRight = false;
+
+
     result = result.concat(this.ifCanMove(result, BLUE_PLAYER, 1, -1));
     ifCanEatLeft = this.ifCanContinueLeft(BLUE_PLAYER, 1, -1);
     CanContinueLeft = this.ifCanEat(result, ifCanEatLeft, 2, -2);
-    // if (CanContinueLeft&&ifCanEatLeft) {
-    //     ifCanEatRight = false;
-    //     ifCanEatLeft=false;
-    //     //arr =arr.concat(getMultipleJumps(this,result[result.length-1],BLUE_PLAYER));
-    //     console.log('this is all the poosible moves ', arr);
-    // }
+    
 
     result = result.concat(this.ifCanMove(result, BLUE_PLAYER, 1, 1));
     ifCanEatRight = this.ifCanContinueRight(BLUE_PLAYER, 1, 1);
@@ -71,11 +69,23 @@ class Piece {
     if (CanContinueLeft && ifCanEatLeft) {
       let e = eatenPieceLeft.pop();
       possibleEaten.push([e[0], e[1]]);
+        count =1;
     }
     if (CanContinueRight && ifCanEatRight) {
       let e = eatenPieceRight.pop();
       possibleEaten.push([e[0], e[1]]);
+        count =1;
     }
+    
+   
+    
+        result=result.concat(getMultipleJumpBackWards(this,-1,-1));
+        result=result.concat(getMultipleJumpBackWards(this,-1,1));
+        
+    
+    
+
+   
 
     return result;
   }
@@ -107,6 +117,10 @@ class Piece {
       possibleEaten.push([e[0], e[1]]);
     }
 
+    result=result.concat(getMultipleJumpBackWards(this,1,-1));
+    result=result.concat(getMultipleJumpBackWards(this,1,1));
+    
+
     return result;
   }
 
@@ -132,6 +146,8 @@ class Piece {
     return e;
   }
 
+
+ 
 
 
 
@@ -162,7 +178,7 @@ class Piece {
     let a = false;
     currentPiece = boardData.getPiece(this.row + row, this.col + col);
 
-    if (currentPiece !== undefined && currentPiece.player !== color) {
+    if (currentPiece !== undefined && currentPiece.player !== color &&currentPiece.row<7) {
       a = true;
       eatenPieceLeft.push([currentPiece.row, currentPiece.col]);
     }
@@ -178,7 +194,7 @@ class Piece {
     let a = false;
     currentPiece = boardData.getPiece(this.row + row, this.col + col);
 
-    if (currentPiece !== undefined && currentPiece.player !== color) {
+    if (currentPiece !== undefined && currentPiece.player !== color&&currentPiece.row<7) {
       a = true;
       eatenPieceRight.push([currentPiece.row, currentPiece.col]);
     }
