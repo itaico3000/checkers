@@ -40,7 +40,8 @@ table {
   }
   .container{
     display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      justify-content: space-between;
       width: 412px;
       
       margin-left: auto;
@@ -129,3 +130,25 @@ h1 {
   }
 
 }
+.winner-dialog {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  
+  transform: translate(-50%, -50%);
+  background: linear-gradient(to right, rgb(11, 100, 201) 0%, rgb(57, 189, 30) 100%);
+  padding: 50px;
+  border-radius: 10px;
+  width: max-content;
+  text-align: center;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+
+  }
+  .child{
+    align-self:flex-end ;
+    margin: 20px;
+  }
+  #reset{
+    cursor: pointer;
+  }

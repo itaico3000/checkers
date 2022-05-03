@@ -18,11 +18,11 @@ class BoardData {
   //changes the location in the array
   changeLocation(lastPiece, row, col) {
     let remove = this.getPiece(lastPiece.row, lastPiece.col);
-    let lastmove = [lastPiece.row, lastPiece.col];
+    let lastMove = [lastPiece.row, lastPiece.col];
     remove.row = row;
     remove.col = col;
 
-    return lastmove;
+    return lastMove;
   }
   //
   //

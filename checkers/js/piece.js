@@ -94,7 +94,6 @@ class Piece {
   //
   //returns array of brown piece possible moves
   getBrownPieceRelativeMoves() {
-    possibleEaten = [];
     let result = [];
     eatenPieceLeft = [];
     eatenPieceRight = [];
