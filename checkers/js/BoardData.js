@@ -42,4 +42,9 @@ class BoardData {
     }
     return true;
   }
+
+  turnIntoQueen(piece)
+  {
+    piece.type =QUEEN;
+  }
 }

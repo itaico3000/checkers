@@ -2,6 +2,7 @@ const BOARD_SIZE = 8;
 const BLUE_PLAYER = "blue";
 const BROWN_PLAYER = "brown";
 const piece = "Piece";
+const QUEEN = "queen";
 let eatenPieceLeft;
 let eatenPieceRight;
 let possibleEaten = [];
@@ -28,6 +29,33 @@ let hasEaten;
 let saveCell;
 let count = 3;
 let countEating = 0;
+
+//whitearrow - check by direction if there any possible moves
+function whiteArrow(piece, row, col, color) {
+  let arr = [];
+  for (let i = 1; i < 8; i++) {
+    let currentRow = piece.row + row * i; // 3-3 - 4-3
+    let currentCol = piece.col + col * i;
+    let thisPiece = boardData.getPiece(currentRow, currentCol);
+
+    let currentAttackerRow = piece.row + row * (i + 1); // 3-3 - 4-3
+    let currentAttackerCol = piece.col + col * (i + 1);
+    let thisAttacker = boardData.getPiece(
+      currentAttackerRow,
+      currentAttackerCol
+    );
+
+    if (thisPiece === undefined) {
+      arr.push([row * i, col * i]);
+    } else if (thisPiece.player === color && thisAttacker === undefined) {
+      arr.push([row * i, col * i]);
+      return arr;
+    } else if (thisPiece) {
+      return arr;
+    }
+  }
+  return arr;
+}
 
 function getMultipleJumpBackWards(piece, row, col) {
   let arr = [];
@@ -169,6 +197,7 @@ function onCellClick(event, row, col) {
   if (hasEaten === true) {
     count = 0;
     countEating = 0;
+    console.log("in! yeah");
   }
   if (selectedCell !== undefined) {
     selectedCell.classList.remove("selected");
@@ -188,10 +217,11 @@ function onCellClick(event, row, col) {
 
   let piece = boardData.getPiece(row, col);
 
-  if (hasEaten === true && saveCell === selectedCell) {
+  if (saveCell === selectedCell) {
     console.log("in first ", countEating);
 
     addPossibleOptions(saveIfHasEaten, turn, hasEaten, countEating);
+  } else if (saveCell !== selectedCell && countEating > 0) {
   } else if (hasEaten === undefined) {
     console.log("in ", countEating);
     addPossibleOptions(piece, turn, undefined, countEating);
@@ -208,16 +238,18 @@ function onCellClick(event, row, col) {
 
   if (ifCanMove) {
     turn += movePiece(row, col, savedPiece);
+
     if (lastTurn % 2 === 0) {
       let h2 = document.querySelector("h2");
       h2.innerHTML = "brown turn ";
       attackColor = BROWN_PLAYER;
-      countEating = 0;
+      if (savedPiece.row === 7) {
+        boardData.turnIntoQueen(savedPiece);
+      }
     } else if (lastTurn % 2 !== 0) {
       let h2 = document.querySelector("h2");
       h2.innerHTML = "blue turn ";
       attackColor = BLUE_PLAYER;
-      countEating = 0;
     }
 
     if (turn > lastTurn) {
@@ -229,9 +261,12 @@ function onCellClick(event, row, col) {
         saveIfHasEaten = savedPiece;
         possibleEaten = [];
         possibleMoves = saveIfHasEaten.getPossibleMoves();
+        possibleMoves = filterAfterEating(possibleMoves, saveIfHasEaten);
         if (possibleMoves.length > 0 && possibleEaten.length > 0) {
           turn--;
           countEating++;
+        } else {
+          countEating = 0;
         }
         removeCellClasses();
         selectedCell = undefined;
@@ -243,7 +278,6 @@ function onCellClick(event, row, col) {
 
     checkIfWinner();
   }
-  console.log("numbers of eating ", countEating);
 
   if (
     savedPiece !== undefined &&
@@ -255,14 +289,15 @@ function onCellClick(event, row, col) {
 
     let r = savedPiece.getPossibleMoves();
     possibleMoves = filterAfterEating(r, savedPiece);
-
-    if (r.length < 1) {
+    console.log(possibleMoves, " check!");
+    if (possibleMoves.length < 1) {
       console.log("in 333");
       turn++;
       count = 1;
       countEating = 0;
     }
   }
+  console.log("numbers of eating ", countEating);
 
   if (piece !== undefined && possibleMoves !== undefined) {
     savedPiece = piece;
@@ -375,13 +410,13 @@ function getInitialPieces() {
 
   for (let i = 0; i < BOARD_SIZE; i++) {
     if (i % 2 == 0) {
-      result.push(new Piece(1, i, BLUE_PLAYER));
-      result.push(new Piece(5, i, BROWN_PLAYER));
-      result.push(new Piece(7, i, BROWN_PLAYER));
+      result.push(new Piece(1, i, BLUE_PLAYER, piece));
+      result.push(new Piece(5, i, BROWN_PLAYER, piece));
+      result.push(new Piece(7, i, BROWN_PLAYER, piece));
     } else {
-      result.push(new Piece(0, i, BLUE_PLAYER));
-      result.push(new Piece(2, i, BLUE_PLAYER));
-      result.push(new Piece(6, i, BROWN_PLAYER));
+      result.push(new Piece(0, i, BLUE_PLAYER, piece));
+      result.push(new Piece(2, i, BLUE_PLAYER, piece));
+      result.push(new Piece(6, i, BROWN_PLAYER, piece));
     }
   }
 
