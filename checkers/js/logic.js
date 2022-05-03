@@ -27,7 +27,6 @@ let secondJump;
 let saveIfHasEaten;
 let hasEaten;
 let saveCell;
-let count = 3;
 let countEating = 0;
 let lastType;
 
@@ -60,7 +59,7 @@ function whiteArrow(piece, row, col, color) {
     ) {
       arr.push([row * (i + 1), col * (i + 1)]);
       possibleEaten.push([currentRow, currentCol]);
-      console.log(possibleEaten, "1111");
+
 
       return arr;
     } else if (thisPiece) {
@@ -160,7 +159,6 @@ function filterAfterEating(possibleMoves, piece) {
 function addPossibleOptions(piece, turn, countEating) {
   if (piece !== undefined && turn % 2 === 0 && piece.player === BLUE_PLAYER) {
     possibleMoves = piece.getPossibleMoves();
-    console.log(piece);
     if (countEating > 0) {
       ifQueenAndHasEaten(piece);
 
@@ -216,7 +214,6 @@ function onCellClick(event, row, col) {
   selectedCell.classList.add("selected");
 
   let piece = boardData.getPiece(row, col);
-  console.log(piece);
 
   if (saveCell === selectedCell) {
     //only the piece that has eaten can continuo
@@ -242,7 +239,6 @@ function onCellClick(event, row, col) {
       hasEaten = eatPiece(savedPossibleEaten, attackColor, direction, lastCol);
 
       if (hasEaten) {
-        console.log("in");
         let cell = table.rows[savedPiece.row].cells[savedPiece.col];
         cell.firstChild.classList.add("faded-piece");
         saveCell = selectedCell;
@@ -258,7 +254,7 @@ function onCellClick(event, row, col) {
           removeCellClasses();
           countEating++;
           ifQueenAndHasEaten(saveIfHasEaten);
-          console.log(saveIfHasEaten, "   2");
+
         } else {
           countEating = 0;
           ifQueenAndHasEaten(saveIfHasEaten);
@@ -541,7 +537,6 @@ function removeAll() {
 //reset button double click
 function reset() {
   const reset = document.getElementById("reset");
-  console.log(reset);
   reset.onclick = () => {
     removeAll();
     turn = 0;

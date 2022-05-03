@@ -52,10 +52,9 @@ class Piece {
   }
   //
   //
-  //returns array of White piece possible moves
+  //returns array of blue piece possible moves
   getBluePieceRelativeMoves() {
     let result = [];
-    let count = 0;
     eatenPieceLeft = [];
     eatenPieceRight = [];
     let ifCanEatRight = false;
@@ -63,7 +62,7 @@ class Piece {
     let CanContinueLeft = false;
     let CanContinueRight = false;
 
-    result = result.concat(this.ifCanMove(result, BLUE_PLAYER, 1, -1));
+    result = result.concat(this.ifCanMove(result, BLUE_PLAYER, 1, -1)); 
     ifCanEatLeft = this.ifCanContinueLeft(BLUE_PLAYER, 1, -1);
     CanContinueLeft = this.ifCanEat(result, ifCanEatLeft, 2, -2);
 
@@ -75,12 +74,10 @@ class Piece {
     if (CanContinueLeft && ifCanEatLeft) {
       let e = eatenPieceLeft.pop();
       possibleEaten.push([e[0], e[1]]);
-      count = 1;
     }
     if (CanContinueRight && ifCanEatRight) {
       let e = eatenPieceRight.pop();
       possibleEaten.push([e[0], e[1]]);
-      count = 1;
     }
 
     if (countEating > 0) {
