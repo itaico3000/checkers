@@ -29,6 +29,7 @@ let hasEaten;
 let saveCell;
 let count = 3;
 let countEating = 0;
+let lastType;
 
 //whitearrow - check by direction if there any possible moves
 function whiteArrow(piece, row, col, color) {
@@ -48,7 +49,9 @@ function whiteArrow(piece, row, col, color) {
     if (thisPiece === undefined) {
       arr.push([row * i, col * i]);
     } else if (thisPiece.player === color && thisAttacker === undefined) {
-      arr.push([row * i, col * i]);
+      arr.push([row * (i + 1), col * (i + 1)]);
+      possibleEaten.push([currentRow, currentCol]);
+
       return arr;
     } else if (thisPiece) {
       return arr;
@@ -91,12 +94,6 @@ function removeCellClasses() {
       table.rows[i].cells[j].classList.remove("selectedoptions");
       table.rows[i].cells[j].classList.remove("selected");
     }
-  }
-}
-
-function checkIfCanGoBack(countEating) {
-  if (countEating > 0) {
-    return true;
   }
 }
 
@@ -161,7 +158,10 @@ function addPossibleOptions(piece, turn, hasEaten, countEating) {
     piece.player === BLUE_PLAYER
   ) {
     possibleMoves = piece.getPossibleMoves();
+    console.log(piece);
     if (countEating > 0) {
+      ifQueenAndHasEaten(piece);
+
       possibleMoves = filterAfterEating(possibleMoves, piece);
     }
     for (let possibleMove of possibleMoves) {
@@ -177,6 +177,7 @@ function addPossibleOptions(piece, turn, hasEaten, countEating) {
   ) {
     possibleMoves = piece.getPossibleMoves();
     if (countEating > 0) {
+      possibleMoves = piece.getPossibleMoves();
       possibleMoves = filterAfterEating(possibleMoves, piece);
     }
     if (possibleMoves !== savedPossibleMoves) {
@@ -216,14 +217,18 @@ function onCellClick(event, row, col) {
   selectedCell.classList.add("selected");
 
   let piece = boardData.getPiece(row, col);
+  console.log(piece);
 
   if (saveCell === selectedCell) {
     console.log("in first ", countEating);
 
+    console.log(saveIfHasEaten);
     addPossibleOptions(saveIfHasEaten, turn, hasEaten, countEating);
   } else if (saveCell !== selectedCell && countEating > 0) {
   } else if (hasEaten === undefined) {
     console.log("in ", countEating);
+    ifQueenAndHasEaten(piece);
+
     addPossibleOptions(piece, turn, undefined, countEating);
   } else if (
     piece !== undefined &&
@@ -250,6 +255,9 @@ function onCellClick(event, row, col) {
       let h2 = document.querySelector("h2");
       h2.innerHTML = "blue turn ";
       attackColor = BLUE_PLAYER;
+      if (savedPiece.row === 0) {
+        boardData.turnIntoQueen(savedPiece);
+      }
     }
 
     if (turn > lastTurn) {
@@ -260,14 +268,23 @@ function onCellClick(event, row, col) {
         saveCell = selectedCell;
         saveIfHasEaten = savedPiece;
         possibleEaten = [];
+        lastType = saveIfHasEaten.type;
+        console.log(lastType);
+        console.log(saveIfHasEaten, "  1");
+        saveIfHasEaten.type = "Piece";
         possibleMoves = saveIfHasEaten.getPossibleMoves();
         possibleMoves = filterAfterEating(possibleMoves, saveIfHasEaten);
         if (possibleMoves.length > 0 && possibleEaten.length > 0) {
           turn--;
           countEating++;
+          ifQueenAndHasEaten(saveIfHasEaten);
+          console.log(saveIfHasEaten, "   2");
         } else {
           countEating = 0;
+          ifQueenAndHasEaten(saveIfHasEaten);
+          lastType = "";
         }
+
         removeCellClasses();
         selectedCell = undefined;
         hasEaten = undefined;
@@ -393,6 +410,14 @@ function eatPiece(savedPossibleEaten, attackColor, direction, lastCol) {
   }
 }
 
+function ifQueenAndHasEaten(piece) {
+  if (countEating > 0 && piece.type === QUEEN) {
+    piece.type = "Piece";
+  } else if (lastType === QUEEN && countEating < 1) {
+    piece.type = QUEEN;
+  }
+}
+
 //return witch direction the pawn has moved
 function witchDirection(lastRow, lastCol, savedPiece) {
   let col = savedPiece.col;
@@ -415,7 +440,7 @@ function getInitialPieces() {
       result.push(new Piece(7, i, BROWN_PLAYER, piece));
     } else {
       result.push(new Piece(0, i, BLUE_PLAYER, piece));
-      result.push(new Piece(2, i, BLUE_PLAYER, piece));
+       result.push(new Piece(2, i, BLUE_PLAYER, piece));
       result.push(new Piece(6, i, BROWN_PLAYER, piece));
     }
   }

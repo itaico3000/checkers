@@ -14,12 +14,15 @@ class Piece {
 
     if (this.player === BLUE_PLAYER&&this.type ===piece) {
       relativeMoves = this.getBluePieceRelativeMoves();
+      console.log('blue piece');
     } else if(this.player === BROWN_PLAYER&&this.type ===piece) {
       relativeMoves = this.getBrownPieceRelativeMoves();
     }
     else if(this.player === BLUE_PLAYER&&this.type ===QUEEN){
         relativeMoves = this.getBlueQueenPossibleMoves();
         relativeMoves = relativeMoves.concat(this.getBluePieceRelativeMoves());
+        console.log('blue queen');
+
         }
         else {
             relativeMoves =this.getBrownQueenPossibleMoves();
@@ -151,7 +154,9 @@ class Piece {
 
 getBlueQueenPossibleMoves()
 {
+   
     let result =[];
+    
     result = result.concat(whiteArrow(this, 1, 1 ,BROWN_PLAYER));
 
     result = result.concat(whiteArrow(this, -1, -1,BROWN_PLAYER));
@@ -166,6 +171,9 @@ getBlueQueenPossibleMoves()
 getBrownQueenPossibleMoves()
 {
     let result =[];
+    if (countEating>1) {
+        return result
+    }
     result = result.concat(whiteArrow(this, 1, 1 ,BLUE_PLAYER));
 
     result = result.concat(whiteArrow(this, -1, -1,BLUE_PLAYER));
