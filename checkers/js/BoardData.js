@@ -1,8 +1,9 @@
 class BoardData {
   constructor(pieces) {
-    this.pieces = pieces; //{1,0,rook,white}  *32
+    this.pieces = pieces; //array of all pieces
   }
-
+  //
+  //
   // Returns piece in row, col, or undefined if not exists.
   getPiece(row, col) {
     for (const piece of this.pieces) {
@@ -12,6 +13,8 @@ class BoardData {
     }
   }
 
+  //
+  //
   //changes the location in the array
   changeLocation(lastPiece, row, col) {
     let remove = this.getPiece(lastPiece.row, lastPiece.col);
@@ -21,7 +24,8 @@ class BoardData {
 
     return lastmove;
   }
-
+  //
+  //
   //remove piece from the array
   removePiece(eatenPiece) {
     for (const piece of this.pieces) {
@@ -31,6 +35,9 @@ class BoardData {
     }
   }
 
+  //
+  //
+  //checks if player can win
   checkIfWon(color) {
     for (const piece of this.pieces) {
       if (piece.player === color) {
@@ -42,9 +49,10 @@ class BoardData {
     }
     return true;
   }
-
-  turnIntoQueen(piece)
-  {
-    piece.type =QUEEN;
+  //
+  //
+  //turn piece into queen
+  turnIntoQueen(piece) {
+    piece.type = QUEEN;
   }
 }

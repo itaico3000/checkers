@@ -4,7 +4,12 @@ body {
     height: 100vh;
     font-weight: 100;
     text-align: center;
-    align-items: center;  }
+    align-items: center;
+    
+      
+      background: radial-gradient(#029df7,#1f1013);
+    
+    }
 table {
     position: relative;
     margin-left: auto;
@@ -20,7 +25,7 @@ table {
   }
   
   .dark-cell {
-    background: rgb(173, 67, 25);
+    background: rgba(173, 67, 25, 0.849);
     width: 75px;
     height: 75px;
   }
@@ -28,8 +33,99 @@ table {
     box-shadow:inset 0 0 40px rgb(73, 237, 8);
   }
   .selectedoptions{
-    box-shadow:inset 0 0 40px rgb(243, 146, 1);
+    box-shadow:inset 0 0 40px rgb(243, 6, 204);
   }
   .lastMove{
     box-shadow:inset 0 0 40px rgb(18, 18, 18);
   }
+  .container{
+    display: flex;
+      flex-direction: column;
+      width: 412px;
+      
+      margin-left: auto;
+      margin-right: auto;
+  }
+  h1 ,h2{
+    padding: 10px;
+    border: 2px solid rgb(173, 123, 31);
+    color: #dfceda;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background: linear-gradient(to right, rgb(118, 105, 172) 0%, purple 100%);
+    border-radius: .5em;
+
+    
+  }
+     .cool-link {
+      display: inline-block;
+      color: rgb(250, 246, 246);
+      text-decoration: none;
+
+  }
+  
+  .cool-link::after {
+      content: '';
+      display: block;
+      width: 0;
+      height: 4px;
+      background: #000;
+      transition: width .3s;
+
+  }
+  
+  .cool-link:hover::after {
+      width: 100%;
+       transition: width .3s;
+ 
+  }
+ #blue-Piece{
+  filter: drop-shadow(0 0 0.75rem rgba(36, 13, 241, 0.678));
+ }
+
+ #brown-Piece{
+  filter: drop-shadow(0 0 0.75rem crimson);
+ }
+ @keyframes animation {
+  from {
+    letter-spacing: 32px;
+  }
+  to {
+    letter-spacing: 0;
+  }
+}
+
+.animated {
+  animation: animation 5s ease ;
+}
+
+h1 {
+  white-space: nowrap;
+}
+.faded{
+  
+  animation: fadein 2s;
+  -webkit-animation: fadein 2s; /* Safari and Chrome */
+}
+@keyframes fadein {
+  from {
+      opacity:0;
+  }
+  to {
+      opacity:1;
+  }
+
+}
+.faded-piece{
+  
+  animation: fadein 1s;
+  -webkit-animation: fadein 1s; /* Safari and Chrome */
+}
+@keyframes fadein {
+  from {
+      opacity:0;
+  }
+  to {
+      opacity:1;
+  }
+
+}

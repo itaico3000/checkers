@@ -1,33 +1,29 @@
 class Piece {
-  constructor(row, col, player ,type) {
+  constructor(row, col, player, type) {
     this.row = row;
     this.col = col;
     this.player = player;
-    this.type =type;
+    this.type = type;
   }
-
+  //
+  //
   //gets all the possible moves
   getPossibleMoves() {
     // Get relative moves
 
     let relativeMoves = [];
 
-    if (this.player === BLUE_PLAYER&&this.type ===piece) {
+    if (this.player === BLUE_PLAYER && this.type === piece) {
       relativeMoves = this.getBluePieceRelativeMoves();
-      console.log('blue piece');
-    } else if(this.player === BROWN_PLAYER&&this.type ===piece) {
+    } else if (this.player === BROWN_PLAYER && this.type === piece) {
       relativeMoves = this.getBrownPieceRelativeMoves();
+    } else if (this.player === BLUE_PLAYER && this.type === QUEEN) {
+      relativeMoves = this.getBlueQueenPossibleMoves();
+      relativeMoves = relativeMoves.concat(this.getBluePieceRelativeMoves());
+    } else {
+      relativeMoves = this.getBrownQueenPossibleMoves();
+      relativeMoves = relativeMoves.concat(this.getBrownPieceRelativeMoves());
     }
-    else if(this.player === BLUE_PLAYER&&this.type ===QUEEN){
-        relativeMoves = this.getBlueQueenPossibleMoves();
-        relativeMoves = relativeMoves.concat(this.getBluePieceRelativeMoves());
-        console.log('blue queen');
-
-        }
-        else {
-            relativeMoves =this.getBrownQueenPossibleMoves();
-            relativeMoves  =relativeMoves.concat(this.getBrownPieceRelativeMoves());
-        }
     let absoluteMoves = [];
     for (let relativeMove of relativeMoves) {
       //check all possibilities of this.pawn
@@ -54,7 +50,8 @@ class Piece {
     return filteredMoves;
     //return filteredMoves;
   }
-
+  //
+  //
   //returns array of White piece possible moves
   getBluePieceRelativeMoves() {
     let result = [];
@@ -93,7 +90,8 @@ class Piece {
 
     return result;
   }
-
+  //
+  //
   //returns array of brown piece possible moves
   getBrownPieceRelativeMoves() {
     possibleEaten = [];
@@ -128,7 +126,8 @@ class Piece {
 
     return result;
   }
-
+  //
+  //
   //removes the option from possible moves if he cant eat
   ifCanEat(result, ifCanEatRight, row, col) {
     let e = true;
@@ -150,40 +149,41 @@ class Piece {
     }
     return e;
   }
+  //
+  //
+  //returns array of blue queen possible Moves
+  getBlueQueenPossibleMoves() {
+    let result = [];
 
+    result = result.concat(whiteArrow(this, 1, 1, BROWN_PLAYER));
 
-getBlueQueenPossibleMoves()
-{
-   
-    let result =[];
-    
-    result = result.concat(whiteArrow(this, 1, 1 ,BROWN_PLAYER));
+    result = result.concat(whiteArrow(this, -1, -1, BROWN_PLAYER));
 
-    result = result.concat(whiteArrow(this, -1, -1,BROWN_PLAYER));
+    result = result.concat(whiteArrow(this, -1, 1, BROWN_PLAYER));
 
-    result = result.concat(whiteArrow(this, -1, 1,BROWN_PLAYER));
-
-    result = result.concat(whiteArrow(this, 1, -1,BROWN_PLAYER));
+    result = result.concat(whiteArrow(this, 1, -1, BROWN_PLAYER));
     return result;
-}
-
-
-getBrownQueenPossibleMoves()
-{
-    let result =[];
-    if (countEating>1) {
-        return result
+  }
+  //
+  //
+  //returns array of blue queen possible Moves
+  getBrownQueenPossibleMoves() {
+    let result = [];
+    if (countEating > 1) {
+      return result;
     }
-    result = result.concat(whiteArrow(this, 1, 1 ,BLUE_PLAYER));
+    result = result.concat(whiteArrow(this, 1, 1, BLUE_PLAYER));
 
-    result = result.concat(whiteArrow(this, -1, -1,BLUE_PLAYER));
+    result = result.concat(whiteArrow(this, -1, -1, BLUE_PLAYER));
 
-    result = result.concat(whiteArrow(this, -1, 1,BLUE_PLAYER));
+    result = result.concat(whiteArrow(this, -1, 1, BLUE_PLAYER));
 
-    result = result.concat(whiteArrow(this, 1, -1,BLUE_PLAYER));
+    result = result.concat(whiteArrow(this, 1, -1, BLUE_PLAYER));
     return result;
-}
-
+  }
+  //
+  //
+  //returns array of possible option
   ifCanMove(result, color, row, col) {
     let currentPiece;
     result.push([row, col]);
@@ -202,7 +202,9 @@ getBrownQueenPossibleMoves()
     }
     return result;
   }
-
+  //
+  //
+  //return true if he can eat left
   ifCanContinueLeft(color, row, col) {
     let currentPiece;
     let a = false;
@@ -218,7 +220,9 @@ getBrownQueenPossibleMoves()
     }
     return a;
   }
-
+  //
+  //
+  // return true if he can eat right
   ifCanContinueRight(color, row, col) {
     let currentPiece;
     let a = false;

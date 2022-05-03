@@ -31,7 +31,9 @@ let count = 3;
 let countEating = 0;
 let lastType;
 
-//whitearrow - check by direction if there any possible moves
+//
+//
+//whiteArrow - check by direction if there any possible moves
 function whiteArrow(piece, row, col, color) {
   let arr = [];
   for (let i = 1; i < 8; i++) {
@@ -60,6 +62,9 @@ function whiteArrow(piece, row, col, color) {
   return arr;
 }
 
+//
+//
+//return multiple jumps backwards
 function getMultipleJumpBackWards(piece, row, col) {
   let arr = [];
   let thisAttcker;
@@ -87,16 +92,25 @@ function getMultipleJumpBackWards(piece, row, col) {
   return arr;
 }
 
+//
+//
 //removes cells classes from the board
 function removeCellClasses() {
   for (let i = 0; i < BOARD_SIZE; i++) {
     for (let j = 0; j < BOARD_SIZE; j++) {
       table.rows[i].cells[j].classList.remove("selectedoptions");
       table.rows[i].cells[j].classList.remove("selected");
+      if (table.rows[i].cells[j].classList.firstChild !== undefined) {
+        table.rows[i].cells[j].classList.firstChild.remove("faded-piece");
+      }
     }
   }
+  let h2 = document.querySelector("h2");
+  h2.classList.remove("faded");
 }
 
+//
+//
 //removes pieces images
 function removeCellPieces() {
   for (let i = 0; i < BOARD_SIZE; i++) {
@@ -105,14 +119,20 @@ function removeCellPieces() {
         let remove = boardData.getPiece(i, j);
         if (remove === undefined) {
           table.rows[i].cells[j].firstChild.remove("img");
+        } else {
+          table.rows[i].cells[j].firstChild.classList.remove("faded");
         }
       }
     }
   }
+  let h2 = document.querySelector("h2");
+  h2.classList.remove("animate__zoomIn");
 }
 
+//
+//
+//filter moves the you cant do after eating
 function filterAfterEating(possibleMoves, piece) {
-  let arr = [];
   for (let i = 0; i < possibleMoves.length; i++) {
     let row = possibleMoves[i][0];
     let col = possibleMoves[i][1];
@@ -126,37 +146,11 @@ function filterAfterEating(possibleMoves, piece) {
   return possibleMoves;
 }
 
+//
+//
 //adds possible options
-function addPossibleOptions(piece, turn, hasEaten, countEating) {
-  if (hasEaten === true) {
-    if (piece !== undefined) {
-      possibleMoves = piece.getPossibleMoves();
-      if (countEating > 0) {
-        possibleMoves = filterAfterEating(possibleMoves, piece);
-        possibleMoves = possibleMoves.concat(
-          getMultipleJumpBackWards(piece, -1, -1)
-        );
-        possibleMoves = possibleMoves.concat(
-          getMultipleJumpBackWards(piece, -1, 1)
-        );
-      }
-      if (possibleEaten.length === 0) {
-        return turn++;
-      }
-
-      for (let possibleMove of possibleMoves) {
-        const cell = table.rows[possibleMove[0]].cells[possibleMove[1]];
-
-        cell.classList.add("selectedoptions");
-      }
-
-      return possibleMoves;
-    }
-  } else if (
-    piece !== undefined &&
-    turn % 2 === 0 &&
-    piece.player === BLUE_PLAYER
-  ) {
+function addPossibleOptions(piece, turn, countEating) {
+  if (piece !== undefined && turn % 2 === 0 && piece.player === BLUE_PLAYER) {
     possibleMoves = piece.getPossibleMoves();
     console.log(piece);
     if (countEating > 0) {
@@ -193,17 +187,15 @@ function addPossibleOptions(piece, turn, hasEaten, countEating) {
   }
 }
 
+//
+//
 //what happens onClick
 function onCellClick(event, row, col) {
-  if (hasEaten === true) {
-    count = 0;
-    countEating = 0;
-    console.log("in! yeah");
-  }
   if (selectedCell !== undefined) {
     selectedCell.classList.remove("selected");
 
     if (lastcell !== undefined && lastcell === selectedCell) {
+      //sava the picture for later (if he can eat)
       savePieces.push(lastcell.firstChild);
     }
   } else {
@@ -211,7 +203,6 @@ function onCellClick(event, row, col) {
   }
 
   removeCellClasses();
-
   selectedCell = event.currentTarget;
 
   selectedCell.classList.add("selected");
@@ -220,62 +211,42 @@ function onCellClick(event, row, col) {
   console.log(piece);
 
   if (saveCell === selectedCell) {
-    console.log("in first ", countEating);
-
-    console.log(saveIfHasEaten);
-    addPossibleOptions(saveIfHasEaten, turn, hasEaten, countEating);
+    //only the piece that has eaten can continuo
+    addPossibleOptions(saveIfHasEaten, turn, countEating);
   } else if (saveCell !== selectedCell && countEating > 0) {
-  } else if (hasEaten === undefined) {
-    console.log("in ", countEating);
-    ifQueenAndHasEaten(piece);
-
-    addPossibleOptions(piece, turn, undefined, countEating);
-  } else if (
-    piece !== undefined &&
-    piece.player === attackColor &&
-    hasEaten === undefined
-  ) {
-    savedPossibleMoves = [];
-    savedPossibleEaten = [];
+  } else {
+    //Everybody can continuo
+    addPossibleOptions(piece, turn, countEating);
   }
 
-  ifCanMove = canMovePiece(savedPossibleMoves, row, col, savedPiece);
+  ifCanMove = canMovePiece(savedPossibleMoves, row, col);
 
   if (ifCanMove) {
+    // attackColor = onTurn(lastTurn, savedPiece);
+
     turn += movePiece(row, col, savedPiece);
 
-    if (lastTurn % 2 === 0) {
-      let h2 = document.querySelector("h2");
-      h2.innerHTML = "brown turn ";
-      attackColor = BROWN_PLAYER;
-      if (savedPiece.row === 7) {
-        boardData.turnIntoQueen(savedPiece);
-      }
-    } else if (lastTurn % 2 !== 0) {
-      let h2 = document.querySelector("h2");
-      h2.innerHTML = "blue turn ";
-      attackColor = BLUE_PLAYER;
-      if (savedPiece.row === 0) {
-        boardData.turnIntoQueen(savedPiece);
-      }
-    }
+    attackColor = onTurn(lastTurn, savedPiece, turn);
 
     if (turn > lastTurn) {
       savedPossibleMoves = [];
-      let direction = witchDirection(lastRow, lastCol, savedPiece);
+      let direction = witchDirection(lastCol, savedPiece);
       hasEaten = eatPiece(savedPossibleEaten, attackColor, direction, lastCol);
+
       if (hasEaten) {
+        let cell = table.rows[savedPiece.row].cells[savedPiece.col];
+        cell.firstChild.classList.add("faded-piece");
         saveCell = selectedCell;
         saveIfHasEaten = savedPiece;
         possibleEaten = [];
         lastType = saveIfHasEaten.type;
-        console.log(lastType);
-        console.log(saveIfHasEaten, "  1");
         saveIfHasEaten.type = "Piece";
         possibleMoves = saveIfHasEaten.getPossibleMoves();
         possibleMoves = filterAfterEating(possibleMoves, saveIfHasEaten);
         if (possibleMoves.length > 0 && possibleEaten.length > 0) {
           turn--;
+          lastTurn--;
+          removeCellClasses();
           countEating++;
           ifQueenAndHasEaten(saveIfHasEaten);
           console.log(saveIfHasEaten, "   2");
@@ -294,27 +265,8 @@ function onCellClick(event, row, col) {
     }
 
     checkIfWinner();
+    ChangePlayerTurnText(turn);
   }
-
-  if (
-    savedPiece !== undefined &&
-    hasEaten === undefined &&
-    turn === lastTurn &&
-    count === 0
-  ) {
-    possibleEaten = [];
-
-    let r = savedPiece.getPossibleMoves();
-    possibleMoves = filterAfterEating(r, savedPiece);
-    console.log(possibleMoves, " check!");
-    if (possibleMoves.length < 1) {
-      console.log("in 333");
-      turn++;
-      count = 1;
-      countEating = 0;
-    }
-  }
-  console.log("numbers of eating ", countEating);
 
   if (piece !== undefined && possibleMoves !== undefined) {
     savedPiece = piece;
@@ -331,6 +283,8 @@ function onCellClick(event, row, col) {
   lastRow = row;
 }
 
+//
+//
 //return true if player has won
 function checkIfWinner() {
   if (boardData.checkIfWon(BLUE_PLAYER)) {
@@ -340,24 +294,40 @@ function checkIfWinner() {
   }
 }
 
-//move's a piece and return if it happen
-function canMovePiece(savedPossibleMoves, row, col, savedPiece) {
+//
+//
+//what happens when turn occurred
+function onTurn(lastTurn, savedPiece) {
+  if (lastTurn % 2 === 0) {
+    attackColor = BROWN_PLAYER;
+    if (savedPiece.row === 7) {
+      boardData.turnIntoQueen(savedPiece);
+    }
+  } else if (lastTurn % 2 !== 0) {
+    attackColor = BLUE_PLAYER;
+    if (savedPiece.row === 0) {
+      boardData.turnIntoQueen(savedPiece);
+    }
+  }
+
+  return attackColor;
+}
+
+//
+//
+//return true if piece can move
+function canMovePiece(savedPossibleMoves, row, col) {
   let a = false;
   for (const i of savedPossibleMoves) {
     if (i !== undefined && i[0] === row && i[1] === col) {
-      // if (savePieces.length > 0 && savePieces[0] !== null) {
-      //   let cell = table.rows[i[0]].cells[i[1]].append(savePieces.pop());
-      //   cell = table.rows[i[0]].cells[i[1]];
-      //   boardData.changeLocation(savedPiece, row, col);
-
-      //   return true;
-      // }
       return true;
     }
   }
   return a;
 }
-
+//
+//
+// moves the piece and return turn++
 function movePiece(row, col, savedPiece) {
   if (savedPiece !== undefined) {
     savedPossibleMoves = savedPiece.getPossibleMoves();
@@ -373,6 +343,7 @@ function movePiece(row, col, savedPiece) {
         let cell = table.rows[i[0]].cells[i[1]].append(savePieces.pop());
         cell = table.rows[i[0]].cells[i[1]];
         boardData.changeLocation(savedPiece, row, col);
+        cell.firstChild.classList.add("faded-piece");
       }
     }
   }
@@ -382,8 +353,9 @@ function movePiece(row, col, savedPiece) {
   return 0;
 }
 
+//
+//
 //eats a piece , removes the piece from the board
-
 function eatPiece(savedPossibleEaten, attackColor, direction, lastCol) {
   for (const possible of savedPossibleEaten) {
     let piece = boardData.getPiece(possible[0], possible[1]);
@@ -396,6 +368,8 @@ function eatPiece(savedPossibleEaten, attackColor, direction, lastCol) {
     ) {
       boardData.removePiece(piece);
       removeCellPieces();
+      removeCellClasses();
+
       return true;
     } else if (
       piece !== undefined &&
@@ -405,11 +379,35 @@ function eatPiece(savedPossibleEaten, attackColor, direction, lastCol) {
     ) {
       boardData.removePiece(piece);
       removeCellPieces();
+      removeCellClasses();
       return true;
     }
   }
 }
 
+//
+//
+//change h2 text
+function ChangePlayerTurnText(turn) {
+  if (turn % 2 === 0 && turn !== 0) {
+    let h2 = document.querySelector("h2");
+    // h2.classList.add("animate__animated");
+    // h2.classList.add("animate__zoomIn");
+    h2.classList.add("faded");
+
+    h2.innerText = "This is blue player's turn";
+  } else if (turn % 2 !== 0) {
+    let h2 = document.querySelector("h2");
+    // h2.classList.add("animate__animated");
+    // h2.classList.add("animate__zoomIn");
+    h2.classList.add("faded");
+
+    h2.innerText = "This is brown player's turn";
+  }
+}
+//
+//
+//what happens when queen eats another piece
 function ifQueenAndHasEaten(piece) {
   if (countEating > 0 && piece.type === QUEEN) {
     piece.type = "Piece";
@@ -417,9 +415,10 @@ function ifQueenAndHasEaten(piece) {
     piece.type = QUEEN;
   }
 }
-
+//
+//
 //return witch direction the pawn has moved
-function witchDirection(lastRow, lastCol, savedPiece) {
+function witchDirection(lastCol, savedPiece) {
   let col = savedPiece.col;
 
   if (col < lastCol) {
@@ -428,7 +427,8 @@ function witchDirection(lastRow, lastCol, savedPiece) {
     return "right";
   }
 }
-
+//
+//
 //puts all pieces on the board
 function getInitialPieces() {
   let result = [];
@@ -440,7 +440,7 @@ function getInitialPieces() {
       result.push(new Piece(7, i, BROWN_PLAYER, piece));
     } else {
       result.push(new Piece(0, i, BLUE_PLAYER, piece));
-       result.push(new Piece(2, i, BLUE_PLAYER, piece));
+      result.push(new Piece(2, i, BLUE_PLAYER, piece));
       result.push(new Piece(6, i, BROWN_PLAYER, piece));
     }
   }
@@ -448,6 +448,8 @@ function getInitialPieces() {
   return result;
 }
 
+//
+//
 //adds images to the board
 function addImage(cell, player, name) {
   if (player === undefined) {
@@ -459,13 +461,13 @@ function addImage(cell, player, name) {
   }
 }
 
+//
+//
 //creates the board
 function createBoard() {
   // Create empty board HTML:
   table = document.createElement("table");
   document.body.appendChild(table);
-  // table.classList.add("animate__animated");
-  // table.classList.add("animate__fadeInUpBig");
 
   for (let row = 0; row < BOARD_SIZE; row++) {
     const rowElement = table.insertRow();
